@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Mp3Player</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="list_song">Bài hát</string>
+    <string name="album_list">Album</string>
+    <string name="artist_list">Nghệ sĩ</string>
+    <string name="setting">Cài đặt</string>
+    <string name="about">Về tác giả</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="36dp"
+    android:background="@color/black"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/artist_title_item"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:maxLines="1"
+        android:text="@string/artist_list"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_size_normal"
+        android:gravity="center_vertical"
+        android:paddingLeft="8dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white" />
+</RelativeLayout>

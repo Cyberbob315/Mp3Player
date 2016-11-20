@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:orientation="vertical"
+    android:background="@color/black">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="47dp">
+        <ImageView
+            android:id="@+id/iv_album_img_item"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@mipmap/ic_launcher"/>
+        <TextView
+            android:id="@+id/tv_album_title_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/iv_album_img_item"
+            android:text="@string/album_list"
+            android:maxLines="1"
+            android:textSize="@dimen/text_size_normal"
+            android:paddingLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/white"/>
+        <TextView
+            android:id="@+id/tv_artist_album_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/artist_list"
+            android:layout_toRightOf="@id/iv_album_img_item"
+            android:layout_below="@id/tv_album_title_item"
+            android:maxLines="1"
+            android:textSize="@dimen/text_size_small"
+            android:paddingLeft="8dp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/white"/>
+    </RelativeLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"/>
+</RelativeLayout>

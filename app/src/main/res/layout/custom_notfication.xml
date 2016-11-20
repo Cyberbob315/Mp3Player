@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/black">
+
+
+    <ImageView
+        android:id="@+id/img_album_art_noti"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_centerVertical="true"
+        android:src="@mipmap/ic_launcher" />
+
+    <RelativeLayout
+        android:id="@+id/rl_info_song_noti"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/img_album_art_noti"
+        android:layout_toLeftOf="@+id/rl_control_noti"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dp">
+
+        <TextView
+            android:id="@+id/tv_artist_noti"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_song_title_noti"
+            android:maxLines="1"
+            android:text="@string/artist_list"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_small"/>
+
+        <TextView
+            android:id="@+id/tv_song_title_noti"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:maxLines="1"
+            android:text="@string/list_song"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_normal"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_control_noti"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true">
+
+        <ImageView
+            android:id="@+id/btn_prev_noti"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/pb_prev"/>
+
+        <ImageView
+            android:id="@+id/btn_play_pause_noti"
+            android:layout_toRightOf="@id/btn_prev_noti"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/pb_play"/>
+
+        <ImageView
+            android:id="@+id/btn_next_noti"
+            android:layout_toRightOf="@id/btn_play_pause_noti"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/pb_next"/>
+
+        <ImageView
+            android:layout_toRightOf="@id/btn_next_noti"
+            android:id="@+id/btn_close_noti"
+            android:src="@drawable/ic_notif_close_mtrl"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorRed">#df282b</color>
+    <color name="yellow">#f4f738</color>
+    <color name="blue">#2946e7</color>
+    <color name="green">#3ce736</color>
+    <color name="pink">#f750c8</color>
+    <color name="purple">#c422e1</color>
+    <color name="white">#FFFFFF</color>
+    <color name="koi_blue">#1508c9</color>
+    <color name="usui_blue">#a0b1e2</color>
+    <color name="usui_grey">#e2d8d8</color>
+    <color name="black">#454444</color>
+    <color name="custom_color">#8C000000</color>
+</resources>
