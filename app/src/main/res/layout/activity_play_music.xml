@@ -6,11 +6,33 @@
     android:layout_height="match_parent"
     android:background="@drawable/default_player_bg"
     android:orientation="vertical"
-    android:padding="8dp"
+
     tools:context="com.example.iceman.mp3player.activities.PlayMusicActivity">
+
+    <RelativeLayout
+        android:id="@+id/rl_song_detail"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp">
+        <TextView
+            android:id="@+id/tv_song_name_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/list_song"
+            android:textSize="@dimen/text_size_big"/>
+        <TextView
+            android:id="@+id/tv_artist_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/artist_list"
+            android:textSize="@dimen/text_size_normal"
+            android:layout_below="@+id/tv_song_name_play"/>
+    </RelativeLayout>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/view_pager_play"
+        android:layout_below="@id/rl_song_detail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/rl_button">

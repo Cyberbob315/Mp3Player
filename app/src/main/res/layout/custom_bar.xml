@@ -9,18 +9,6 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:paddingLeft="10dp">
-        <TextView
-            android:id="@+id/tv_song_name_play"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/list_song"
-            android:textSize="@dimen/text_size_normal"/>
-        <TextView
-            android:id="@+id/tv_artist_play"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/artist_list"
-            android:textSize="@dimen/text_size_small"
-            android:layout_below="@+id/tv_song_name_play"/>
+
     </RelativeLayout>
 </RelativeLayout>

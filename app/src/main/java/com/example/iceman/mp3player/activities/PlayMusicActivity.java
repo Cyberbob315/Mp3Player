@@ -74,7 +74,6 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         if (mPlayMusicService == null) {
             initPlayService();
         }
-
         initEvents();
         registerBroadcastSongComplete();
         registerBroadcastSwitchSong();
@@ -158,8 +157,8 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 //        mActionBar.setCustomView(mCustomView);
 //        mActionBar.setDisplayShowCustomEnabled(true);
 //
-//        mTvSongName = (TextView) mCustomView.findViewById(R.id.tv_song_name_play);
-//        mTvArtist = (TextView) mCustomView.findViewById(R.id.tv_artist_play);
+        mTvSongName = (TextView) findViewById(R.id.tv_song_name_play);
+        mTvArtist = (TextView) findViewById(R.id.tv_artist_play);
 
         seekBar = (SeekBar) findViewById(R.id.seek_bar_play);
         btnPlayPause = (ImageView) findViewById(R.id.btn_play_pause);
@@ -185,7 +184,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 //            Song item = mData.get(currentPos);
 //            AppController.getInstance().showNotification(mData, currentPos, mDataShuffle, isShuffle, item, item.getAlbumImagePath());
 //        }
-//        setName();
+        setName();
     }
 
 
@@ -201,21 +200,21 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     private void getDataFromIntent() {
         Intent intent = getIntent();
         isPlaying = intent.getExtras().getBoolean(IS_PlAYING);
-//        if (isPlaying) {
-//            path = intent.getExtras().getString(SongListAdapter.SONG_PATH);
-//            currentPos = intent.getExtras().getInt(SongListAdapter.SONG_POS);
-//            mData = (ArrayList<Song>) intent.getExtras().getSerializable(SongListAdapter.LIST_SONG);
-//            isShuffle = intent.getExtras().getBoolean(IS_SHUFFLE);
-//            mDataShuffle = (ArrayList<Song>) intent.getExtras().getSerializable(LIST_SONG_SHUFFLE);
-//            currentPosShuffle = getCurrentPosShuffle();
-//        } else {
+        if (isPlaying) {
+            path = intent.getExtras().getString(SongListAdapter.SONG_PATH);
+            currentPos = intent.getExtras().getInt(SongListAdapter.SONG_POS);
+            mData = (ArrayList<Song>) intent.getExtras().getSerializable(SongListAdapter.LIST_SONG);
+            isShuffle = intent.getExtras().getBoolean(IS_SHUFFLE);
+            mDataShuffle = (ArrayList<Song>) intent.getExtras().getSerializable(LIST_SONG_SHUFFLE);
+            currentPosShuffle = getCurrentPosShuffle();
+        } else {
             path = intent.getExtras().getString(SongListAdapter.SONG_PATH);
             currentPos = intent.getExtras().getInt(SongListAdapter.SONG_POS);
             mData = (ArrayList<Song>) intent.getExtras().getSerializable(SongListAdapter.LIST_SONG);
             mDataShuffle = (ArrayList<Song>) mData.clone();
             Collections.shuffle(mDataShuffle);
             currentPosShuffle = getCurrentPosShuffle();
-//        }
+        }
 
 
     }
@@ -231,7 +230,6 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             PlayMusicService.LocalBinder binder = (PlayMusicService.LocalBinder) service;
             mPlayMusicService = binder.getInstantBoundService();
 //            mPlayMusicService = PlayMusicService.getInstance();
-            mPlayMusicService.setRepeat(false);
             playMusic();
             updateSeekBar();
             totalTime = mPlayMusicService.getTotalTime();
@@ -280,13 +278,13 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
                 break;
             case R.id.btn_repeat:
-                if (mPlayMusicService.isRepeat()) {
-                    btnRepeat.setImageResource(R.drawable.ic_widget_repeat_all);
-                    mPlayMusicService.setRepeat(false);
-                } else {
-                    btnRepeat.setImageResource(R.drawable.ic_widget_repeat_one);
-                    mPlayMusicService.setRepeat(true);
-                }
+//                if (mPlayMusicService.isRepeat()) {
+//                    btnRepeat.setImageResource(R.drawable.ic_widget_repeat_all);
+//                    mPlayMusicService.setRepeat(false);
+//                } else {
+//                    btnRepeat.setImageResource(R.drawable.ic_widget_repeat_one);
+//                    mPlayMusicService.setRepeat(true);
+//                }
                 break;
         }
     }
