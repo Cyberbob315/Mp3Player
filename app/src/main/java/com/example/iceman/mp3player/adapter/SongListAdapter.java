@@ -82,6 +82,7 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
             intent.putExtra(LIST_SONG, mData);
             intent.putExtra(PlayMusicActivity.IS_PlAYING,false);
             mContext.startActivity(intent);
+
         }
     }
 }

@@ -1,12 +1,22 @@
 package com.example.iceman.mp3player.services;
 
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.example.iceman.mp3player.R;
 import com.example.iceman.mp3player.activities.PlayMusicActivity;
 
 import java.io.IOException;
@@ -43,10 +53,50 @@ public class PlayMusicService extends Service {
 //    }
 
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
+        restartServiceIntent.setPackage(getPackageName());
+
+        PendingIntent restartServicePendingIntent = PendingIntent.getService(getApplicationContext(), 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager alarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        alarmService.set(
+                AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + 1000,
+                restartServicePendingIntent);
+        Toast.makeText(this, "Task removed", Toast.LENGTH_SHORT).show();
+        super.onTaskRemoved(rootIntent);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e("LocalService", "3-onStartCommand");
+        Log.e("LocalService", "Received start id " + startId + ": " + intent);
+        showNotification();
+        return START_NOT_STICKY;
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return localBinder;
+    }
+
+    private Notification showNotification() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setContentTitle("BothService running indefinitely")
+                .setSmallIcon(R.mipmap.ic_launcher);
+        Notification n = builder.build();
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(1, n);
+        startForeground(1337, n);
+        return n;
     }
 
     private void releaseMusic() {

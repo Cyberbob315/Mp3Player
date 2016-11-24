@@ -22,7 +22,6 @@ import com.example.iceman.mp3player.adapter.SongListPlayingAdapter;
 import com.example.iceman.mp3player.adapter.ViewPagerPlayAdapter;
 import com.example.iceman.mp3player.models.Song;
 import com.example.iceman.mp3player.services.PlayMusicService;
-import com.example.iceman.mp3player.utils.AppController;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -179,13 +178,13 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
     private void playMusic() {
         mPlayMusicService.playMusic(path);
-        if (isShuffle) {
-            Song item = mDataShuffle.get(currentPosShuffle);
-            AppController.getInstance().showNotification(mData, currentPos, mDataShuffle, isShuffle, item, item.getAlbumImagePath());
-        } else {
-            Song item = mData.get(currentPos);
-            AppController.getInstance().showNotification(mData, currentPos, mDataShuffle, isShuffle, item, item.getAlbumImagePath());
-        }
+//        if (isShuffle) {
+//            Song item = mDataShuffle.get(currentPosShuffle);
+//            AppController.getInstance().showNotification(mData, currentPos, mDataShuffle, isShuffle, item, item.getAlbumImagePath());
+//        } else {
+//            Song item = mData.get(currentPos);
+//            AppController.getInstance().showNotification(mData, currentPos, mDataShuffle, isShuffle, item, item.getAlbumImagePath());
+//        }
 //        setName();
     }
 
@@ -202,21 +201,21 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     private void getDataFromIntent() {
         Intent intent = getIntent();
         isPlaying = intent.getExtras().getBoolean(IS_PlAYING);
-        if (isPlaying) {
-            path = intent.getExtras().getString(SongListAdapter.SONG_PATH);
-            currentPos = intent.getExtras().getInt(SongListAdapter.SONG_POS);
-            mData = (ArrayList<Song>) intent.getExtras().getSerializable(SongListAdapter.LIST_SONG);
-            isShuffle = intent.getExtras().getBoolean(IS_SHUFFLE);
-            mDataShuffle = (ArrayList<Song>) intent.getExtras().getSerializable(LIST_SONG_SHUFFLE);
-            currentPosShuffle = getCurrentPosShuffle();
-        } else {
+//        if (isPlaying) {
+//            path = intent.getExtras().getString(SongListAdapter.SONG_PATH);
+//            currentPos = intent.getExtras().getInt(SongListAdapter.SONG_POS);
+//            mData = (ArrayList<Song>) intent.getExtras().getSerializable(SongListAdapter.LIST_SONG);
+//            isShuffle = intent.getExtras().getBoolean(IS_SHUFFLE);
+//            mDataShuffle = (ArrayList<Song>) intent.getExtras().getSerializable(LIST_SONG_SHUFFLE);
+//            currentPosShuffle = getCurrentPosShuffle();
+//        } else {
             path = intent.getExtras().getString(SongListAdapter.SONG_PATH);
             currentPos = intent.getExtras().getInt(SongListAdapter.SONG_POS);
             mData = (ArrayList<Song>) intent.getExtras().getSerializable(SongListAdapter.LIST_SONG);
             mDataShuffle = (ArrayList<Song>) mData.clone();
             Collections.shuffle(mDataShuffle);
             currentPosShuffle = getCurrentPosShuffle();
-        }
+//        }
 
 
     }
