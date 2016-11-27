@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.iceman.mp3player.R;
-import com.example.iceman.mp3player.activities.PlayMusicActivity;
 import com.example.iceman.mp3player.models.Song;
+import com.example.iceman.mp3player.utils.Constants;
 
 import java.util.ArrayList;
 
@@ -75,7 +75,7 @@ public class SongListPlayingAdapter extends RecyclerView.Adapter<SongListPlaying
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(PlayMusicActivity.ACTION_SWITCH_SONG);
+            Intent intent = new Intent(Constants.ACTION_SWITCH_SONG);
             intent.putExtra(KEY_ID_SWITH, id);
             mContext.sendBroadcast(intent);
         }

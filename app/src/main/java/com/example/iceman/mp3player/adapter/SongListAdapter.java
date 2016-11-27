@@ -23,7 +23,6 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
     public static final String SONG_PATH = "song_path";
     public static final String LIST_SONG = "list_song";
     public static final String SONG_POS = "position";
-    public static final String BUNDLE_SONG= "bundle_song";
 
     Context mContext;
     ArrayList<Song> mData;
@@ -82,6 +81,7 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
             intent.putExtra(LIST_SONG, mData);
             intent.putExtra(PlayMusicActivity.IS_PlAYING,false);
             mContext.startActivity(intent);
+
 
         }
     }

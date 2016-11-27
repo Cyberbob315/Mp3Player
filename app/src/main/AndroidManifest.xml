@@ -22,13 +22,20 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.DetailActivity" />
-        <activity android:name=".activities.PlayMusicActivity"
+        <activity
+            android:name=".activities.PlayMusicActivity"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <service android:name=".services.PlayMusicService" android:stopWithTask="false" android:enabled="true" android:exported="true" />
+        <service android:name=".services.PlayMusicService" />
+        <service android:name=".services.StartService" />
 
         <activity android:name=".activities.AlbumListActivity"></activity>
-        <receiver android:name=".activities.PlayMusicActivity$BroadcastPrevMusic"/>
+        <receiver android:name="com.example.iceman.mp3player.activities.PlayMusicActivity$BroadcastPrevMusic" >
+            <intent-filter>
+                <action android:name="com.example.iceman.Mp3Player.ACTION_PREV" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

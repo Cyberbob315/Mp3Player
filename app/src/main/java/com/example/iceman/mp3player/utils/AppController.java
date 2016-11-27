@@ -185,13 +185,13 @@ public class AppController extends Application {
     }
 
     public void showNotification(ArrayList<Song> lstSong, int currentPos, ArrayList<Song> lstSongShuffle
-            , boolean isShuffle, Song item, String albumArtPath) {
+            , boolean isShuffle, Song itemCurrent, String albumArtPath) {
         RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.custom_notfication);
         Intent intent = new Intent(getApplicationContext(), PlayMusicActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(SongListAdapter.SONG_PATH, item.getPath());
+        intent.putExtra(SongListAdapter.SONG_PATH, itemCurrent.getPath());
         intent.putExtra(SongListAdapter.SONG_POS, currentPos);
         intent.putExtra(SongListAdapter.LIST_SONG, lstSong);
         intent.putExtra(PlayMusicActivity.IS_PlAYING, true);
@@ -201,8 +201,8 @@ public class AppController extends Application {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
-        Intent intentPrev = new Intent(PlayMusicActivity.ACTION_PREV);
-        intentPrev.putExtra(SongListAdapter.SONG_PATH, item.getPath());
+        Intent intentPrev = new Intent(Constants.ACTION_PREV);
+        intentPrev.putExtra(SongListAdapter.SONG_PATH, itemCurrent.getPath());
         intentPrev.putExtra(SongListAdapter.SONG_POS, currentPos);
         intentPrev.putExtra(SongListAdapter.LIST_SONG, lstSong);
         intentPrev.putExtra(PlayMusicActivity.IS_PlAYING, true);
@@ -210,8 +210,8 @@ public class AppController extends Application {
         intentPrev.putExtra(PlayMusicActivity.IS_SHUFFLE, isShuffle);
         PendingIntent pendingIntentPrev = PendingIntent.getBroadcast(getApplicationContext(), 0, intentPrev, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
-        Intent intentPlayPause = new Intent(PlayMusicActivity.ACTION_PLAY_PAUSE);
-        intentPlayPause.putExtra(SongListAdapter.SONG_PATH, item.getPath());
+        Intent intentPlayPause = new Intent(Constants.ACTION_PLAY_PAUSE);
+        intentPlayPause.putExtra(SongListAdapter.SONG_PATH, itemCurrent.getPath());
         intentPlayPause.putExtra(SongListAdapter.SONG_POS, currentPos);
         intentPlayPause.putExtra(SongListAdapter.LIST_SONG, lstSong);
         intentPlayPause.putExtra(PlayMusicActivity.IS_PlAYING, true);
@@ -219,8 +219,8 @@ public class AppController extends Application {
         intentPlayPause.putExtra(PlayMusicActivity.IS_SHUFFLE, isShuffle);
         PendingIntent pendingIntentPlayPause = PendingIntent.getBroadcast(getApplicationContext(), 0, intentPlayPause, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
-        Intent intentNext = new Intent(PlayMusicActivity.ACTION_NEXT);
-        intentNext.putExtra(SongListAdapter.SONG_PATH, item.getPath());
+        Intent intentNext = new Intent(Constants.ACTION_NEXT);
+        intentNext.putExtra(SongListAdapter.SONG_PATH, itemCurrent.getPath());
         intentNext.putExtra(SongListAdapter.SONG_POS, currentPos);
         intentNext.putExtra(SongListAdapter.LIST_SONG, lstSong);
         intentNext.putExtra(PlayMusicActivity.IS_PlAYING, true);
@@ -234,8 +234,8 @@ public class AppController extends Application {
         builder.setContentIntent(pendingIntent);
         builder.setContent(remoteViews);
 
-        remoteViews.setTextViewText(R.id.tv_song_title_noti, item.getTitle());
-        remoteViews.setTextViewText(R.id.tv_artist_noti, item.getArtist());
+        remoteViews.setTextViewText(R.id.tv_song_title_noti, itemCurrent.getTitle());
+        remoteViews.setTextViewText(R.id.tv_artist_noti, itemCurrent.getArtist());
 
         if (albumArtPath != null && !albumArtPath.isEmpty()) {
             Bitmap bitmap = BitmapFactory.decodeFile(albumArtPath);

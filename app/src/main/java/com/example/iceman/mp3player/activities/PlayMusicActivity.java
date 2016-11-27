@@ -11,10 +11,12 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.iceman.mp3player.R;
 import com.example.iceman.mp3player.adapter.SongListAdapter;
@@ -22,6 +24,7 @@ import com.example.iceman.mp3player.adapter.SongListPlayingAdapter;
 import com.example.iceman.mp3player.adapter.ViewPagerPlayAdapter;
 import com.example.iceman.mp3player.models.Song;
 import com.example.iceman.mp3player.services.PlayMusicService;
+import com.example.iceman.mp3player.utils.Constants;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -33,13 +36,8 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     public static final String IS_PlAYING = "is_playing";
     public static final String LIST_SONG_SHUFFLE = "list_song_shuffle";
     public static final String IS_SHUFFLE = "is_shuffle";
-    public static final String PLAY_SERVICE = "play_service";
 
-    public static final String ACTION_COMPLETE_SONG = "com.example.iceman.Mp3Player.ACTION_COMPLETE_SONG";
-    public static final String ACTION_SWITCH_SONG = "com.example.iceman.Mp3Player.ACTION_SWITCH_SONG";
-    public static final String ACTION_PREV = "com.example.iceman.Mp3Player.ACTION_PREV";
-    public static final String ACTION_PLAY_PAUSE = "com.example.iceman.Mp3Player.ACTION_PLAY_PAUSE";
-    public static final String ACTION_NEXT = "com.example.iceman.Mp3Player.ACTION_NEXT";
+
 
     private SeekBar seekBar;
     PlayMusicService mPlayMusicService;
@@ -74,6 +72,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         if (mPlayMusicService == null) {
             initPlayService();
         }
+
         initEvents();
         registerBroadcastSongComplete();
         registerBroadcastSwitchSong();
@@ -88,7 +87,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
     private void registerBroadcastSongComplete() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_COMPLETE_SONG);
+        intentFilter.addAction(Constants.ACTION_COMPLETE_SONG);
         registerReceiver(broadcastReceiverSongCompleted, intentFilter);
     }
 
@@ -108,7 +107,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
     private void registerBroadcastSwitchSong() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_SWITCH_SONG);
+        intentFilter.addAction(Constants.ACTION_SWITCH_SONG);
         registerReceiver(broadcastReceiverSwitchSong, intentFilter);
     }
 
@@ -126,12 +125,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mPlayMusicService.seekTo(progress);
-                if (!mPlayMusicService.isPlaying()) {
-                    mPlayMusicService.resumeMusic();
-                    btnPlayPause.setImageResource(R.drawable.pb_pause);
-                }
-                updateSeekBar();
+                tvTimePlayed.setText(getTime(progress));
             }
 
             @Override
@@ -140,6 +134,12 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                mPlayMusicService.seekTo(seekBar.getProgress());
+                if (!mPlayMusicService.isPlaying()) {
+                    mPlayMusicService.resumeMusic();
+                    btnPlayPause.setImageResource(R.drawable.pb_pause);
+                }
+                updateSeekBar();
             }
         });
     }
@@ -172,18 +172,21 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         mViewPager = (ViewPager) findViewById(R.id.view_pager_play);
         mVpPlayAdapter = new ViewPagerPlayAdapter(getSupportFragmentManager(), mData);
         mViewPager.setAdapter(mVpPlayAdapter);
+        mViewPager.setOffscreenPageLimit(2);
         mViewPager.setCurrentItem(1);
     }
 
     private void playMusic() {
         mPlayMusicService.playMusic(path);
-//        if (isShuffle) {
-//            Song item = mDataShuffle.get(currentPosShuffle);
-//            AppController.getInstance().showNotification(mData, currentPos, mDataShuffle, isShuffle, item, item.getAlbumImagePath());
-//        } else {
-//            Song item = mData.get(currentPos);
-//            AppController.getInstance().showNotification(mData, currentPos, mDataShuffle, isShuffle, item, item.getAlbumImagePath());
-//        }
+        if (isShuffle) {
+            Song item = mDataShuffle.get(currentPosShuffle);
+            mPlayMusicService.setDataForNotification(mData, mDataShuffle, isShuffle,currentPos, item, item.getAlbumImagePath());
+        } else {
+            Song item = mData.get(currentPos);
+            mPlayMusicService.setDataForNotification(mData, mDataShuffle, isShuffle,currentPos, item, item.getAlbumImagePath());
+        }
+        Intent intent1 = new Intent(this, PlayMusicService.class);
+        startService(intent1);
         setName();
     }
 
@@ -230,6 +233,30 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             PlayMusicService.LocalBinder binder = (PlayMusicService.LocalBinder) service;
             mPlayMusicService = binder.getInstantBoundService();
 //            mPlayMusicService = PlayMusicService.getInstance();
+            mPlayMusicService.setRepeat(false);
+
+//            Intent intent = new Intent(getApplicationContext(), PlayMusicActivity.class);
+//            intent.setAction(Intent.ACTION_MAIN);
+//            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            intent.putExtra(SongListAdapter.SONG_PATH, path);
+//            intent.putExtra(SongListAdapter.SONG_POS, currentPos);
+//            intent.putExtra(SongListAdapter.LIST_SONG, mData);
+//            intent.putExtra(PlayMusicActivity.IS_PlAYING, true);
+//            intent.putExtra(PlayMusicActivity.LIST_SONG_SHUFFLE, mDataShuffle);
+//            intent.putExtra(PlayMusicActivity.IS_SHUFFLE, isShuffle);
+//
+//
+//            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//            NotificationCompat.Builder builder = new NotificationCompat.Builder(PlayMusicActivity.this);
+//            builder.setContentTitle("Fix bugs")
+//                    .setSmallIcon(R.mipmap.ic_launcher);
+//            builder.setContentIntent(pendingIntent);
+//            Notification n = builder.build();
+//            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//            mNotificationManager.notify(1, n);
+//            mPlayMusicService.startForeground(1, n);
+
             playMusic();
             updateSeekBar();
             totalTime = mPlayMusicService.getTotalTime();
@@ -243,14 +270,17 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
     private void updateSeekBar() {
         seekBar.setMax(totalTime);
-        seekBar.setProgress(mPlayMusicService.getCurrentLength());
-        tvTimePlayed.setText(getTime(mPlayMusicService.getCurrentLength()));
+        int currentLength = mPlayMusicService.getCurrentLength();
+        Log.d("PlayMusicActivity", "currentLength=" + currentLength);
+        seekBar.setProgress(currentLength);
+        tvTimePlayed.setText(getTime(currentLength));
         tvTotalTime.setText(getTime(totalTime));
         Handler musicHandler = new Handler();
         musicHandler.post(new Runnable() {
             @Override
             public void run() {
                 updateSeekBar();
+                Log.d("PlayMusicActivity", "updateSeekBar=");
             }
         });
     }
@@ -278,13 +308,13 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
                 break;
             case R.id.btn_repeat:
-//                if (mPlayMusicService.isRepeat()) {
-//                    btnRepeat.setImageResource(R.drawable.ic_widget_repeat_all);
-//                    mPlayMusicService.setRepeat(false);
-//                } else {
-//                    btnRepeat.setImageResource(R.drawable.ic_widget_repeat_one);
-//                    mPlayMusicService.setRepeat(true);
-//                }
+                if (mPlayMusicService.isRepeat()) {
+                    btnRepeat.setImageResource(R.drawable.ic_widget_repeat_all);
+                    mPlayMusicService.setRepeat(false);
+                } else {
+                    btnRepeat.setImageResource(R.drawable.ic_widget_repeat_one);
+                    mPlayMusicService.setRepeat(true);
+                }
                 break;
         }
     }
@@ -380,10 +410,22 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    public class BroadcastPrevMusic extends BroadcastReceiver {
+//    public class BroadcastPrevMusic extends BroadcastReceiver {
+//        public BroadcastPrevMusic() {
+//        }
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            backMusic();
+//        }
+//    }
+    public static class BroadcastPrevMusic extends BroadcastReceiver {
+        public BroadcastPrevMusic() {
+        }
+
         @Override
         public void onReceive(Context context, Intent intent) {
-            backMusic();
+            Toast.makeText(context, "Back Music", Toast.LENGTH_SHORT).show();
         }
     }
 
