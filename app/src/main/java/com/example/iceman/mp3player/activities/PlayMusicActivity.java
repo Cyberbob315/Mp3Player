@@ -258,7 +258,6 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     private void updateSeekBar() {
         seekBar.setMax(totalTime);
         int currentLength = mPlayMusicService.getCurrentLength();
-        Log.d("PlayMusicActivity", "currentLength=" + currentLength);
 
         if (!isSeeking) {
             seekBar.setProgress(currentLength);
@@ -270,7 +269,6 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             @Override
             public void run() {
                 updateSeekBar();
-                Log.d("PlayMusicActivity", "updateSeekBar=");
             }
         });
     }
@@ -280,15 +278,21 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         switch (v.getId()) {
             case R.id.btn_next:
                 nextMusic();
+                mPlayMusicService.setShowNotification(false);
                 mPlayMusicService.showNotification();
+                mPlayMusicService.setShowNotification(true);
                 break;
             case R.id.btn_play_pause:
                 playPauseMusic();
+                mPlayMusicService.setShowNotification(false);
                 mPlayMusicService.showNotification();
+                mPlayMusicService.setShowNotification(true);
                 break;
             case R.id.btn_prev:
                 backMusic();
+                mPlayMusicService.setShowNotification(false);
                 mPlayMusicService.showNotification();
+                mPlayMusicService.setShowNotification(true);
                 break;
             case R.id.btn_shuffle:
                 if (isShuffle) {
@@ -312,7 +316,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    private void playPauseMusic() {
+    public void playPauseMusic() {
         if (mPlayMusicService.isPlaying()) {
             btnPlayPause.setImageResource(R.drawable.pb_play);
             mPlayMusicService.pauseMusic();
@@ -320,9 +324,10 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             btnPlayPause.setImageResource(R.drawable.pb_pause);
             mPlayMusicService.resumeMusic();
         }
+        mPlayMusicService.changePlayPauseState();
     }
 
-    private void nextMusic() {
+    public void nextMusic() {
         if (isShuffle) {
             if (currentPosShuffle == mDataShuffle.size()) {
                 currentPosShuffle = 0;
@@ -344,7 +349,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
     }
 
-    private void backMusic() {
+    public void backMusic() {
         if (isShuffle) {
             if (currentPosShuffle == 0) {
                 currentPosShuffle = mDataShuffle.size();

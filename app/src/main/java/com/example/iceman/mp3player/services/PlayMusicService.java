@@ -50,7 +50,9 @@ public class PlayMusicService extends Service {
     int currentPos;
     String albumArtPath;
     Song itemCurrent;
-
+    RemoteViews remoteViews;
+    NotificationManager notificationManager;
+    Notification n;
 
     public class LocalBinder extends Binder {
 
@@ -72,12 +74,11 @@ public class PlayMusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (ACTION_STOP_SERVICE.equals(intent.getAction())) {
             PlayMusicActivity musicActivity = (PlayMusicActivity) AppController.getInstance().getPlayMusicActivity();
             Log.d(TAG, "called to cancel service");
-            manager.cancel(NOTIFCATION_ID);
+            notificationManager.cancel(NOTIFCATION_ID);
             if (musicActivity != null) {
                 musicActivity.changePlayButtonState();
             }
@@ -94,10 +95,17 @@ public class PlayMusicService extends Service {
         return START_NOT_STICKY;
     }
 
+    public boolean isShowNotification() {
+        return isShowNotification;
+    }
+
+    public void setShowNotification(boolean showNotification) {
+        isShowNotification = showNotification;
+    }
 
     public Notification showNotification() {
 
-        RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.custom_notfication);
+        remoteViews = new RemoteViews(getPackageName(), R.layout.custom_notfication);
         Intent intent = new Intent(getApplicationContext(), PlayMusicActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.setAction(Intent.ACTION_MAIN);
@@ -157,20 +165,22 @@ public class PlayMusicService extends Service {
         remoteViews.setTextViewText(R.id.tv_song_title_noti, itemCurrent.getTitle());
         remoteViews.setTextViewText(R.id.tv_artist_noti, itemCurrent.getArtist());
 
+
         if (albumArtPath != null && !albumArtPath.isEmpty()) {
             Bitmap bitmap = BitmapFactory.decodeFile(albumArtPath);
             remoteViews.setImageViewBitmap(R.id.img_album_art_noti, bitmap);
         } else {
             remoteViews.setImageViewResource(R.id.img_album_art_noti, R.mipmap.ic_launcher);
         }
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Notification n = builder.build();
+
+        n = builder.build();
 //        notificationManager.notify(1, n);
         remoteViews.setOnClickPendingIntent(R.id.btn_prev_noti, pendingIntentPrev);
+        remoteViews.setOnClickPendingIntent(R.id.btn_next_noti, pendingIntentNext);
+        remoteViews.setOnClickPendingIntent(R.id.btn_play_pause_noti, pendingIntentPlayPause);
         if (!isShowNotification) {
             startForeground(NOTIFCATION_ID, n);
         }
-
         return n;
     }
 
@@ -207,6 +217,51 @@ public class PlayMusicService extends Service {
             mediaPlayer.start();
         }
     }
+
+    public void nextMusic() {
+        if (currentPos == lstSong.size()) {
+            currentPos = 0;
+        } else {
+            currentPos++;
+        }
+        itemCurrent = lstSong.get(currentPos);
+        String path = itemCurrent.getPath();
+        albumArtPath = itemCurrent.getAlbumImagePath();
+        playMusic(path);
+
+    }
+
+    public void backMusic() {
+        if (currentPos == 0) {
+            currentPos = lstSong.size();
+        } else {
+            currentPos--;
+        }
+        itemCurrent = lstSong.get(currentPos);
+        String path = itemCurrent.getPath();
+        albumArtPath = itemCurrent.getAlbumImagePath();
+        playMusic(path);
+    }
+
+    public void playPauseMusic() {
+        if (mediaPlayer.isPlaying()) {
+            pauseMusic();
+        } else {
+            resumeMusic();
+        }
+        changePlayPauseState();
+    }
+
+    public void changePlayPauseState(){
+        if(isPlaying()){
+            remoteViews.setImageViewResource(R.id.btn_play_pause_noti,R.drawable.pb_pause);
+        }else{
+            remoteViews.setImageViewResource(R.id.btn_play_pause_noti,R.drawable.pb_play);
+        }
+        startForeground(NOTIFCATION_ID, n);
+        Log.d("check","tamdung");
+    }
+
 
     public boolean isPlaying() {
         return mediaPlayer.isPlaying();
