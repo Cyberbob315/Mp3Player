@@ -24,11 +24,10 @@
         <activity android:name=".activities.DetailActivity" />
         <activity
             android:name=".activities.PlayMusicActivity"
-            android:launchMode="singleTop"
+            android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".services.PlayMusicService" />
-        <service android:name=".services.StartService" />
 
         <activity android:name=".activities.AlbumListActivity"></activity>
         <receiver android:name="com.example.iceman.mp3player.activities.PlayMusicActivity$BroadcastPrevMusic" >

@@ -13,6 +13,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -24,6 +25,7 @@ import com.example.iceman.mp3player.adapter.SongListPlayingAdapter;
 import com.example.iceman.mp3player.adapter.ViewPagerPlayAdapter;
 import com.example.iceman.mp3player.models.Song;
 import com.example.iceman.mp3player.services.PlayMusicService;
+import com.example.iceman.mp3player.utils.AppController;
 import com.example.iceman.mp3player.utils.Constants;
 
 import java.text.DecimalFormat;
@@ -36,7 +38,6 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     public static final String IS_PlAYING = "is_playing";
     public static final String LIST_SONG_SHUFFLE = "list_song_shuffle";
     public static final String IS_SHUFFLE = "is_shuffle";
-
 
 
     private SeekBar seekBar;
@@ -60,22 +61,39 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     TextView mTvArtist;
     ViewPager mViewPager;
     ViewPagerPlayAdapter mVpPlayAdapter;
+    boolean isSeeking;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_music);
-
+        AppController.getInstance().setPlayMusicActivity(this);
         mData = new ArrayList<>();
         getDataFromIntent();
         initControls();
-        if (mPlayMusicService == null) {
+        if (!isPlaying) {
             initPlayService();
+        } else {
+            mPlayMusicService = (PlayMusicService) AppController.getInstance().getPlayMusicService();
+            updateSeekBar();
+            totalTime = mPlayMusicService.getTotalTime();
+            mPlayMusicService.showNotification();
+            setName();
         }
+        setStatusBarTranslucent(true);
 
         initEvents();
         registerBroadcastSongComplete();
         registerBroadcastSwitchSong();
+        registerUnbindService();
+    }
+
+    protected void setStatusBarTranslucent(boolean makeTranslucent) {
+        if (makeTranslucent) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
     }
 
     BroadcastReceiver broadcastReceiverSongCompleted = new BroadcastReceiver() {
@@ -130,6 +148,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
+                isSeeking = true;
             }
 
             @Override
@@ -139,6 +158,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
                     mPlayMusicService.resumeMusic();
                     btnPlayPause.setImageResource(R.drawable.pb_pause);
                 }
+                isSeeking = false;
                 updateSeekBar();
             }
         });
@@ -146,17 +166,6 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
     private void initControls() {
 
-//        mActionBar = getSupportActionBar();
-//        mActionBar.setDisplayShowHomeEnabled(false);
-//        mActionBar.setDisplayShowTitleEnabled(false);
-//        mActionBar.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-//        mActionBar.setStackedBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-//
-//        LayoutInflater mInflater = LayoutInflater.from(this);
-//        View mCustomView = mInflater.inflate(R.layout.custom_bar, null);
-//        mActionBar.setCustomView(mCustomView);
-//        mActionBar.setDisplayShowCustomEnabled(true);
-//
         mTvSongName = (TextView) findViewById(R.id.tv_song_name_play);
         mTvArtist = (TextView) findViewById(R.id.tv_artist_play);
 
@@ -174,16 +183,17 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         mViewPager.setAdapter(mVpPlayAdapter);
         mViewPager.setOffscreenPageLimit(2);
         mViewPager.setCurrentItem(1);
+        isSeeking = false;
     }
 
     private void playMusic() {
         mPlayMusicService.playMusic(path);
         if (isShuffle) {
             Song item = mDataShuffle.get(currentPosShuffle);
-            mPlayMusicService.setDataForNotification(mData, mDataShuffle, isShuffle,currentPos, item, item.getAlbumImagePath());
+            mPlayMusicService.setDataForNotification(mData, mDataShuffle, isShuffle, currentPos, item, item.getAlbumImagePath());
         } else {
             Song item = mData.get(currentPos);
-            mPlayMusicService.setDataForNotification(mData, mDataShuffle, isShuffle,currentPos, item, item.getAlbumImagePath());
+            mPlayMusicService.setDataForNotification(mData, mDataShuffle, isShuffle, currentPos, item, item.getAlbumImagePath());
         }
         Intent intent1 = new Intent(this, PlayMusicService.class);
         startService(intent1);
@@ -232,31 +242,8 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         public void onServiceConnected(ComponentName name, IBinder service) {
             PlayMusicService.LocalBinder binder = (PlayMusicService.LocalBinder) service;
             mPlayMusicService = binder.getInstantBoundService();
-//            mPlayMusicService = PlayMusicService.getInstance();
+            AppController.getInstance().setPlayMusicService(mPlayMusicService);
             mPlayMusicService.setRepeat(false);
-
-//            Intent intent = new Intent(getApplicationContext(), PlayMusicActivity.class);
-//            intent.setAction(Intent.ACTION_MAIN);
-//            intent.addCategory(Intent.CATEGORY_LAUNCHER);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            intent.putExtra(SongListAdapter.SONG_PATH, path);
-//            intent.putExtra(SongListAdapter.SONG_POS, currentPos);
-//            intent.putExtra(SongListAdapter.LIST_SONG, mData);
-//            intent.putExtra(PlayMusicActivity.IS_PlAYING, true);
-//            intent.putExtra(PlayMusicActivity.LIST_SONG_SHUFFLE, mDataShuffle);
-//            intent.putExtra(PlayMusicActivity.IS_SHUFFLE, isShuffle);
-//
-//
-//            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//            NotificationCompat.Builder builder = new NotificationCompat.Builder(PlayMusicActivity.this);
-//            builder.setContentTitle("Fix bugs")
-//                    .setSmallIcon(R.mipmap.ic_launcher);
-//            builder.setContentIntent(pendingIntent);
-//            Notification n = builder.build();
-//            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//            mNotificationManager.notify(1, n);
-//            mPlayMusicService.startForeground(1, n);
-
             playMusic();
             updateSeekBar();
             totalTime = mPlayMusicService.getTotalTime();
@@ -264,7 +251,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-
+            Log.d("CHECK","DISCONECTED");
         }
     };
 
@@ -272,8 +259,11 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         seekBar.setMax(totalTime);
         int currentLength = mPlayMusicService.getCurrentLength();
         Log.d("PlayMusicActivity", "currentLength=" + currentLength);
-        seekBar.setProgress(currentLength);
-        tvTimePlayed.setText(getTime(currentLength));
+
+        if (!isSeeking) {
+            seekBar.setProgress(currentLength);
+            tvTimePlayed.setText(getTime(currentLength));
+        }
         tvTotalTime.setText(getTime(totalTime));
         Handler musicHandler = new Handler();
         musicHandler.post(new Runnable() {
@@ -290,12 +280,15 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         switch (v.getId()) {
             case R.id.btn_next:
                 nextMusic();
+                mPlayMusicService.showNotification();
                 break;
             case R.id.btn_play_pause:
                 playPauseMusic();
+                mPlayMusicService.showNotification();
                 break;
             case R.id.btn_prev:
                 backMusic();
+                mPlayMusicService.showNotification();
                 break;
             case R.id.btn_shuffle:
                 if (isShuffle) {
@@ -410,7 +403,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-//    public class BroadcastPrevMusic extends BroadcastReceiver {
+    //    public class BroadcastPrevMusic extends BroadcastReceiver {
 //        public BroadcastPrevMusic() {
 //        }
 //
@@ -429,11 +422,44 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
+    public void unBindMusicService(){
+        stopService(new Intent(this,PlayMusicService.class));
+        unbindService(serviceConnection);
+        Log.d("CHECK","UNBIND");
+    }
+
+    BroadcastReceiver unbindService = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (serviceConnection !=  null) {
+                unbindService(serviceConnection);
+            }
+        }
+    };
+
+    private void registerUnbindService() {
+        if (unbindService != null) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("unbind");
+            registerReceiver(unbindService, filter);
+        }
+    }
+
+    private void unregisterUnbindService() {
+        if (unbindService != null) {
+            unregisterReceiver(unbindService);
+        }
+    }
+    public void changePlayButtonState(){
+        btnPlayPause.setImageResource(R.drawable.pb_play);
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 //        unRegisterBroadcastSongComplete();
 //        unRegisterBroadcastSwitchSong();
+        unregisterUnbindService();
+        AppController.getInstance().setPlayMusicActivity(null);
     }
 }

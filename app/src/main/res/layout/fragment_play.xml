@@ -5,6 +5,7 @@
     tools:context="com.example.iceman.mp3player.fragments.FragmentPlay">
 
     <ImageView
+        android:id="@+id/img_album_play"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@mipmap/ic_launcher"/>

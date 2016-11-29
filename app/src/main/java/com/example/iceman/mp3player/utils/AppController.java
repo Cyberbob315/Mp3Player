@@ -1,8 +1,10 @@
 package com.example.iceman.mp3player.utils;
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -28,10 +30,29 @@ public class AppController extends Application {
 
     private static AppController mInstance;
 
+    private Service playMusicService;
+    private Activity playMusicActivity;
+
     @Override
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+    }
+
+    public Service getPlayMusicService() {
+        return playMusicService;
+    }
+
+    public void setPlayMusicService(Service playMusicService) {
+        this.playMusicService = playMusicService;
+    }
+
+    public Activity getPlayMusicActivity() {
+        return playMusicActivity;
+    }
+
+    public void setPlayMusicActivity(Activity playMusicActivity) {
+        this.playMusicActivity = playMusicActivity;
     }
 
     public static AppController getInstance() {

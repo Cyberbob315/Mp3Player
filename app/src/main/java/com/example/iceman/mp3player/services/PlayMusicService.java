@@ -12,16 +12,20 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.example.iceman.mp3player.R;
 import com.example.iceman.mp3player.activities.PlayMusicActivity;
 import com.example.iceman.mp3player.adapter.SongListAdapter;
 import com.example.iceman.mp3player.models.Song;
+import com.example.iceman.mp3player.utils.AppController;
 import com.example.iceman.mp3player.utils.Constants;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by IceMan on 11/15/2016.
@@ -31,13 +35,14 @@ public class PlayMusicService extends Service {
 
 //    private static PlayMusicService musicServiceInstance;
 
+    public static final String ACTION_STOP_SERVICE = "com.example.iceman.mp3player.ACTION_STOP_SERVICE";
+    public static final int NOTIFCATION_ID = 1609;
+
     private static MediaPlayer mediaPlayer;
-
     private int currentLength;
-
     private LocalBinder localBinder = new LocalBinder();
-
     private boolean isRepeat;
+    private boolean isShowNotification = false;
 
     ArrayList<Song> lstSong;
     ArrayList<Song> lstSongShuffle;
@@ -67,14 +72,34 @@ public class PlayMusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        showNotification();
+
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (ACTION_STOP_SERVICE.equals(intent.getAction())) {
+            PlayMusicActivity musicActivity = (PlayMusicActivity) AppController.getInstance().getPlayMusicActivity();
+            Log.d(TAG, "called to cancel service");
+            manager.cancel(NOTIFCATION_ID);
+            if (musicActivity != null) {
+                musicActivity.changePlayButtonState();
+            }
+            pauseMusic();
+            stopForeground(true);
+            isShowNotification = false;
+
+        } else {
+            showNotification();
+            isShowNotification = true;
+        }
+
+
         return START_NOT_STICKY;
     }
 
-    private void showNotification() {
+
+    public Notification showNotification() {
 
         RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.custom_notfication);
         Intent intent = new Intent(getApplicationContext(), PlayMusicActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -86,34 +111,42 @@ public class PlayMusicService extends Service {
         intent.putExtra(PlayMusicActivity.IS_SHUFFLE, isShuffle);
 
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent intentPrev = new Intent(Constants.ACTION_PREV);
+        intentPrev.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intentPrev.putExtra(SongListAdapter.SONG_PATH, itemCurrent.getPath());
         intentPrev.putExtra(SongListAdapter.SONG_POS, currentPos);
         intentPrev.putExtra(SongListAdapter.LIST_SONG, lstSong);
         intentPrev.putExtra(PlayMusicActivity.IS_PlAYING, true);
         intentPrev.putExtra(PlayMusicActivity.LIST_SONG_SHUFFLE, lstSongShuffle);
         intentPrev.putExtra(PlayMusicActivity.IS_SHUFFLE, isShuffle);
-        PendingIntent pendingIntentPrev = PendingIntent.getBroadcast(getApplicationContext(), 0, intentPrev, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pendingIntentPrev = PendingIntent.getBroadcast(getApplicationContext(), 0, intentPrev, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent intentPlayPause = new Intent(Constants.ACTION_PLAY_PAUSE);
+        intentPlayPause.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intentPlayPause.putExtra(SongListAdapter.SONG_PATH, itemCurrent.getPath());
         intentPlayPause.putExtra(SongListAdapter.SONG_POS, currentPos);
         intentPlayPause.putExtra(SongListAdapter.LIST_SONG, lstSong);
         intentPlayPause.putExtra(PlayMusicActivity.IS_PlAYING, true);
         intentPlayPause.putExtra(PlayMusicActivity.LIST_SONG_SHUFFLE, lstSongShuffle);
         intentPlayPause.putExtra(PlayMusicActivity.IS_SHUFFLE, isShuffle);
-        PendingIntent pendingIntentPlayPause = PendingIntent.getBroadcast(getApplicationContext(), 0, intentPlayPause, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pendingIntentPlayPause = PendingIntent.getBroadcast(getApplicationContext(), 0, intentPlayPause, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent intentNext = new Intent(Constants.ACTION_NEXT);
+        intentNext.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intentNext.putExtra(SongListAdapter.SONG_PATH, itemCurrent.getPath());
         intentNext.putExtra(SongListAdapter.SONG_POS, currentPos);
         intentNext.putExtra(SongListAdapter.LIST_SONG, lstSong);
         intentNext.putExtra(PlayMusicActivity.IS_PlAYING, true);
         intentNext.putExtra(PlayMusicActivity.LIST_SONG_SHUFFLE, lstSongShuffle);
         intentNext.putExtra(PlayMusicActivity.IS_SHUFFLE, isShuffle);
-        PendingIntent pendingIntentNext = PendingIntent.getBroadcast(getApplicationContext(), 0, intentNext, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pendingIntentNext = PendingIntent.getBroadcast(getApplicationContext(), 0, intentNext, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent intentStopSelf = new Intent(this, PlayMusicService.class);
+        intentStopSelf.setAction(PlayMusicService.ACTION_STOP_SERVICE);
+        PendingIntent pendingIntentStopSelf = PendingIntent.getService(this, 0, intentStopSelf, PendingIntent.FLAG_CANCEL_CURRENT);
+        remoteViews.setOnClickPendingIntent(R.id.btn_close_noti, pendingIntentStopSelf);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
         builder.setAutoCancel(false);
@@ -132,11 +165,13 @@ public class PlayMusicService extends Service {
         }
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Notification n = builder.build();
-        notificationManager.notify(1, n);
-
+//        notificationManager.notify(1, n);
         remoteViews.setOnClickPendingIntent(R.id.btn_prev_noti, pendingIntentPrev);
+        if (!isShowNotification) {
+            startForeground(NOTIFCATION_ID, n);
+        }
 
-        //startForeground(1337, n);
+        return n;
     }
 
 

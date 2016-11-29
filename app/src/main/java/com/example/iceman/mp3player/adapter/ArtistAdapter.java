@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.iceman.mp3player.R;
 import com.example.iceman.mp3player.models.Artist;
@@ -67,7 +66,7 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(mContext, "" + mData.get(id).getLstSong().size(), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(mContext, "" + mData.get(id).getLstSong().size(), Toast.LENGTH_SHORT).show();
         }
     }
 }

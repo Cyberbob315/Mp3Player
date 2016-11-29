@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/black">
+    android:background="@android:color/black">
 
 
     <ImageView
@@ -79,6 +79,8 @@
 
         <ImageView
             android:layout_toRightOf="@id/btn_next_noti"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
             android:id="@+id/btn_close_noti"
             android:src="@drawable/ic_notif_close_mtrl"
             android:layout_centerVertical="true"
