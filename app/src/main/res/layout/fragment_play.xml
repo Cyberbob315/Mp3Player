@@ -1,12 +1,19 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/pager_background"
     tools:context="com.example.iceman.mp3player.fragments.FragmentPlay">
 
-    <ImageView
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/img_album_play"
+        android:layout_margin="30dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@mipmap/ic_launcher"/>
-</LinearLayout>
+        android:src="@drawable/default_cover_big"
+        android:layout_centerInParent="true"
+        app:civ_border_width="2dp"
+        app:civ_border_color="#FF000000"/>
+</RelativeLayout>

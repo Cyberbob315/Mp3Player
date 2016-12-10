@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.iceman.mp3player.base.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/iv_album_img_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/adele"
+        android:scaleType="fitXY"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#CCFFFFFF"
+        android:layout_alignParentBottom="true">
+        <TextView
+            android:id="@+id/tv_album_title_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textSize="@dimen/text_size_normal"
+            android:text="@string/album_list"/>
+        <TextView
+            android:id="@+id/tv_artist_album_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@string/artist_list"
+            android:textSize="@dimen/text_size_small"
+            />
+    </LinearLayout>
+
+</com.example.iceman.mp3player.base.SquareRelativeLayout>

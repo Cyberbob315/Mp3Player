@@ -21,30 +21,43 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.DetailActivity" />
+        <activity
+            android:name=".activities.DetailActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.PlayMusicActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".services.PlayMusicService" />
+
         <receiver android:name=".receivers.NextMusicBroadcastReceiver">
             <intent-filter>
-                <action android:name="com.example.iceman.Mp3Player.ACTION_NEXT"/>
+                <action android:name="com.example.iceman.Mp3Player.ACTION_NEXT" />
             </intent-filter>
         </receiver>
         <receiver android:name=".receivers.PlayPauseMusicBroadcastReceiver">
             <intent-filter>
-                <action android:name="com.example.iceman.Mp3Player.ACTION_PLAY_PAUSE"/>
+                <action android:name="com.example.iceman.Mp3Player.ACTION_PLAY_PAUSE" />
             </intent-filter>
         </receiver>
 
-        <activity android:name=".activities.AlbumListActivity"></activity>
+        <activity
+            android:name=".activities.AlbumListActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
         <receiver android:name=".receivers.PrevMusicBroadcastReceiver">
-        <intent-filter>
-            <action android:name="com.example.iceman.Mp3Player.ACTION_PREV" />
-        </intent-filter>
-    </receiver>
+            <intent-filter>
+                <action android:name="com.example.iceman.Mp3Player.ACTION_PREV" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receivers.RemoteReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
+
     </application>
 
 </manifest>

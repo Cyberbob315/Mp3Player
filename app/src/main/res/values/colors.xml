@@ -15,4 +15,26 @@
     <color name="usui_grey">#e2d8d8</color>
     <color name="black">#454444</color>
     <color name="custom_color">#8C000000</color>
+    <color name="toolbar_transparent">#33000000</color>
+    <color name="pager_background">#4D000000</color>
+    <color name="transparent_0">#80FFFFFF</color>
+    <color name="transparent_5">#F2FFFFFF</color>
+    <color name="transparent_10">#E6FFFFFF</color>
+    <color name="transparent_15">#D9FFFFFF</color>
+    <color name="transparent_20">#CCFFFFFF</color>
+    <color name="transparent_25">#BFFFFFFF</color>
+    <color name="transparent_30">#B3FFFFFF</color>
+    <color name="transparent_35">#A6FFFFFF</color>
+    <color name="transparent_40">#99FFFFFF</color>
+    <color name="transparent_50">#80FFFFFF</color>
+    <color name="transparent_55">#73FFFFFF</color>
+    <color name="transparent_60">#66FFFFFF</color>
+    <color name="transparent_65">#59FFFFFF</color>
+    <color name="transparent_70">#4DFFFFFF</color>
+    <color name="transparent_75">#40FFFFFF</color>
+    <color name="transparent_80">#33FFFFFF</color>
+    <color name="transparent_85">#26FFFFFF</color>
+    <color name="transparent_90">#1AFFFFFF</color>
+    <color name="transparent_95">#0DFFFFFF</color>
+    <color name="transparent_100">#00FFFFFF</color>
 </resources>

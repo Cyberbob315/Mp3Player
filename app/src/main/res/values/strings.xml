@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Mp3Player</string>
+    <string name="app_name">Music Player</string>
     <string name="title_activity_main">MainActivity</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -11,6 +11,7 @@
     <string name="artist_list">Nghệ sĩ</string>
     <string name="setting">Cài đặt</string>
     <string name="about">Về tác giả</string>
+    <string name="detail_list">Danh sách</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

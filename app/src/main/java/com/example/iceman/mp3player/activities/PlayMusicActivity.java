@@ -6,15 +6,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,9 +31,11 @@ import com.example.iceman.mp3player.R;
 import com.example.iceman.mp3player.adapter.SongListAdapter;
 import com.example.iceman.mp3player.adapter.SongListPlayingAdapter;
 import com.example.iceman.mp3player.adapter.ViewPagerPlayAdapter;
+import com.example.iceman.mp3player.fragments.FragmentPlay;
 import com.example.iceman.mp3player.models.Song;
 import com.example.iceman.mp3player.services.PlayMusicService;
 import com.example.iceman.mp3player.utils.AppController;
+import com.example.iceman.mp3player.utils.BlurBuilder;
 import com.example.iceman.mp3player.utils.Constants;
 
 import java.text.DecimalFormat;
@@ -50,6 +60,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     ImageView btnRepeat;
     TextView tvTimePlayed;
     TextView tvTotalTime;
+    RelativeLayout layout;
     int totalTime;
     ArrayList<Song> mData;
     ArrayList<Song> mDataShuffle;
@@ -62,17 +73,26 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     ViewPager mViewPager;
     ViewPagerPlayAdapter mVpPlayAdapter;
     boolean isSeeking;
+    ImageView btnSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_music);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_playing);
+        setSupportActionBar(toolbar);
+        toolbar.setOverflowIcon(ContextCompat.getDrawable(this,R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha));
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         AppController.getInstance().setPlayMusicActivity(this);
         mData = new ArrayList<>();
         getDataFromIntent();
         initControls();
         if (!isPlaying) {
             initPlayService();
+
         } else {
             mPlayMusicService = (PlayMusicService) AppController.getInstance().getPlayMusicService();
             updateSeekBar();
@@ -86,6 +106,38 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         registerBroadcastSongComplete();
         registerBroadcastSwitchSong();
         registerUnbindService();
+        setAlbumArt();
+
+        updateHomeActivity();
+
+    }
+
+    private void updateHomeActivity() {
+        Intent intent = new Intent(Constants.ACTION_UPDATE_PlAY_STATUS);
+        sendBroadcast(intent);
+    }
+
+    private void setAlbumArt() {
+        Intent intent1 = new Intent(Constants.ACTION_CHANGE_ALBUM_ART);
+        intent1.putExtra(FragmentPlay.KEY_ALBUM_PLAY, mData.get(currentPos).getAlbumImagePath());
+        sendBroadcast(intent1);
+        Bitmap bitmap;
+        String albumPath;
+
+        if (!isShuffle) {
+            albumPath = mData.get(currentPos).getAlbumImagePath();
+
+        } else {
+            albumPath = mDataShuffle.get(currentPosShuffle).getAlbumImagePath();
+        }
+        if (albumPath != null) {
+            bitmap = BitmapFactory.decodeFile(albumPath);
+        } else {
+            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_wallpaper);
+        }
+        bitmap = BlurBuilder.blur(this, bitmap);
+        BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
+        layout.setBackground(bitmapDrawable);
     }
 
     protected void setStatusBarTranslucent(boolean makeTranslucent) {
@@ -100,6 +152,10 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         @Override
         public void onReceive(Context context, Intent intent) {
             nextMusic();
+            totalTime = mPlayMusicService.getTotalTime();
+            updateSeekBar();
+            updateHomeActivity();
+            setAlbumArt();
         }
     };
 
@@ -113,6 +169,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         unregisterReceiver(broadcastReceiverSongCompleted);
     }
 
+
     BroadcastReceiver broadcastReceiverSwitchSong = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -120,6 +177,9 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             currentPosShuffle = getCurrentPosShuffle();
             path = mData.get(currentPos).getPath();
             playMusic();
+            mPlayMusicService.setShowNotification(false);
+            mPlayMusicService.showNotification();
+            mPlayMusicService.setShowNotification(true);
         }
     };
 
@@ -162,6 +222,46 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
                 updateSeekBar();
             }
         });
+
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                    case 0:
+                        btnSearch.setVisibility(View.VISIBLE);
+                        break;
+                    case 1:
+                        btnSearch.setVisibility(View.GONE);
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void initControls() {
@@ -169,6 +269,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         mTvSongName = (TextView) findViewById(R.id.tv_song_name_play);
         mTvArtist = (TextView) findViewById(R.id.tv_artist_play);
 
+        layout = (RelativeLayout) findViewById(R.id.activity_play_music);
         seekBar = (SeekBar) findViewById(R.id.seek_bar_play);
         btnPlayPause = (ImageView) findViewById(R.id.btn_play_pause);
         btnPrev = (ImageView) findViewById(R.id.btn_prev);
@@ -177,6 +278,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         btnRepeat = (ImageView) findViewById(R.id.btn_repeat);
         tvTotalTime = (TextView) findViewById(R.id.tv_time_left);
         tvTimePlayed = (TextView) findViewById(R.id.tv_time_played);
+        btnSearch = (ImageView) findViewById(R.id.btn_search_playing);
 
         mViewPager = (ViewPager) findViewById(R.id.view_pager_play);
         mVpPlayAdapter = new ViewPagerPlayAdapter(getSupportFragmentManager(), mData);
@@ -198,6 +300,11 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         Intent intent1 = new Intent(this, PlayMusicService.class);
         startService(intent1);
         setName();
+        setAlbumArt();
+        mPlayMusicService.setShowNotification(false);
+        mPlayMusicService.showNotification();
+        mPlayMusicService.setShowNotification(true);
+        updateHomeActivity();
     }
 
 
@@ -251,7 +358,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Log.d("CHECK","DISCONECTED");
+            Log.d("CHECK", "DISCONECTED");
         }
     };
 
@@ -313,6 +420,8 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
                     mPlayMusicService.setRepeat(true);
                 }
                 break;
+            case R.id.btn_search_playing:
+                break;
         }
     }
 
@@ -325,11 +434,28 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             mPlayMusicService.resumeMusic();
         }
         mPlayMusicService.changePlayPauseState();
+        updateHomeActivity();
+    }
+
+    public void resumeMusic() {
+        if (!mPlayMusicService.isPlaying()) {
+            btnPlayPause.setImageResource(R.drawable.pb_pause);
+            mPlayMusicService.resumeMusic();
+            updateHomeActivity();
+        }
+    }
+
+    public void pauseMusic() {
+        if (mPlayMusicService.isPlaying()) {
+            btnPlayPause.setImageResource(R.drawable.pb_play);
+            mPlayMusicService.pauseMusic();
+            updateHomeActivity();
+        }
     }
 
     public void nextMusic() {
         if (isShuffle) {
-            if (currentPosShuffle == mDataShuffle.size()) {
+            if (currentPosShuffle == mDataShuffle.size() - 1) {
                 currentPosShuffle = 0;
             } else {
                 currentPosShuffle++;
@@ -337,7 +463,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             path = mDataShuffle.get(currentPosShuffle).getPath();
             currentPos = getCurrentPos();
         } else {
-            if (currentPos == mData.size()) {
+            if (currentPos == mData.size() - 1) {
                 currentPos = 0;
             } else {
                 currentPos++;
@@ -345,6 +471,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             path = mData.get(currentPos).getPath();
             currentPosShuffle = getCurrentPosShuffle();
         }
+        setAlbumArt();
         playMusic();
 
     }
@@ -352,7 +479,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     public void backMusic() {
         if (isShuffle) {
             if (currentPosShuffle == 0) {
-                currentPosShuffle = mDataShuffle.size();
+                currentPosShuffle = mDataShuffle.size() - 1;
             } else {
                 currentPosShuffle--;
             }
@@ -360,13 +487,14 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             currentPos = getCurrentPos();
         } else {
             if (currentPos == 0) {
-                currentPos = mData.size();
+                currentPos = mData.size() - 1;
             } else {
                 currentPos--;
             }
             path = mData.get(currentPos).getPath();
             currentPosShuffle = getCurrentPosShuffle();
         }
+        setAlbumArt();
         playMusic();
     }
 
@@ -427,16 +555,16 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    public void unBindMusicService(){
-        stopService(new Intent(this,PlayMusicService.class));
+    public void unBindMusicService() {
+        stopService(new Intent(this, PlayMusicService.class));
         unbindService(serviceConnection);
-        Log.d("CHECK","UNBIND");
+        Log.d("CHECK", "UNBIND");
     }
 
     BroadcastReceiver unbindService = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (serviceConnection !=  null) {
+            if (serviceConnection != null) {
                 unbindService(serviceConnection);
             }
         }
@@ -455,15 +583,16 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             unregisterReceiver(unbindService);
         }
     }
-    public void changePlayButtonState(){
+
+    public void changePlayButtonState() {
         btnPlayPause.setImageResource(R.drawable.pb_play);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        unRegisterBroadcastSongComplete();
-//        unRegisterBroadcastSwitchSong();
+        unRegisterBroadcastSongComplete();
+        unRegisterBroadcastSwitchSong();
         unregisterUnbindService();
         AppController.getInstance().setPlayMusicActivity(null);
     }

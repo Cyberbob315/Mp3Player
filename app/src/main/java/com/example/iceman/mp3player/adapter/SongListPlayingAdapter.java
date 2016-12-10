@@ -6,9 +6,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.iceman.mp3player.R;
+import com.example.iceman.mp3player.fragments.FragmentPlay;
 import com.example.iceman.mp3player.models.Song;
 import com.example.iceman.mp3player.utils.Constants;
 
@@ -34,7 +37,7 @@ public class SongListPlayingAdapter extends RecyclerView.Adapter<SongListPlaying
 
     @Override
     public ViewHolderSongPlaying onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = mLayoutInflater.inflate(R.layout.item_song, null);
+        View view = mLayoutInflater.inflate(R.layout.item_song_playing, null);
         ViewHolderSongPlaying holder = new ViewHolderSongPlaying(view);
         return holder;
     }
@@ -43,6 +46,12 @@ public class SongListPlayingAdapter extends RecyclerView.Adapter<SongListPlaying
     public void onBindViewHolder(ViewHolderSongPlaying holder, int position) {
         Song item = mData.get(position);
         holder.setId(position);
+        String path =  mData.get(position).getAlbumImagePath();
+        if(path != null) {
+            Glide.with(mContext).load(path).into(holder.imgAlbum);
+        }else{
+            holder.imgAlbum.setImageResource(R.drawable.default_cover_big);
+        }
         holder.tvTitle.setText(item.getTitle());
         holder.tvArtist.setText(item.getArtist());
     }
@@ -54,14 +63,16 @@ public class SongListPlayingAdapter extends RecyclerView.Adapter<SongListPlaying
 
     public class ViewHolderSongPlaying extends RecyclerView.ViewHolder implements View.OnClickListener {
         int id;
+        private ImageView imgAlbum;
         private TextView tvTitle;
         private TextView tvArtist;
 
 
         public ViewHolderSongPlaying(View itemView) {
             super(itemView);
-            tvTitle = (TextView) itemView.findViewById(R.id.tv_song_title_item);
-            tvArtist = (TextView) itemView.findViewById(R.id.artist_name_song_item);
+            imgAlbum = (ImageView) itemView.findViewById(R.id.img_album_song_play);
+            tvTitle = (TextView) itemView.findViewById(R.id.tv_song_name_play);
+            tvArtist = (TextView) itemView.findViewById(R.id.tv_artist_song_play);
             itemView.setOnClickListener(this);
         }
 
@@ -78,6 +89,10 @@ public class SongListPlayingAdapter extends RecyclerView.Adapter<SongListPlaying
             Intent intent = new Intent(Constants.ACTION_SWITCH_SONG);
             intent.putExtra(KEY_ID_SWITH, id);
             mContext.sendBroadcast(intent);
+
+            Intent intent1 = new Intent(Constants.ACTION_CHANGE_ALBUM_ART);
+            intent1.putExtra(FragmentPlay.KEY_ALBUM_PLAY,mData.get(id).getAlbumImagePath());
+            mContext.sendBroadcast(intent1);
         }
     }
 }

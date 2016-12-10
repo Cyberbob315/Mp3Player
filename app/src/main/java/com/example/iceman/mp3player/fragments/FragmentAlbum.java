@@ -4,7 +4,7 @@ package com.example.iceman.mp3player.fragments;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,9 +12,11 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.example.iceman.mp3player.R;
+import com.example.iceman.mp3player.adapter.AlbumGridAdapter;
 import com.example.iceman.mp3player.adapter.AlbumListAdapter;
 import com.example.iceman.mp3player.models.Album;
 import com.example.iceman.mp3player.utils.AppController;
+import com.example.iceman.mp3player.utils.GridSpacingItemDecoration;
 
 import java.util.ArrayList;
 
@@ -29,6 +31,7 @@ public class FragmentAlbum extends Fragment {
     View mView;
     RecyclerView mRvAlbumList;
     AlbumListAdapter mAlbumAdapter;
+    AlbumGridAdapter mAlbumGridAdapter;
     ArrayList<Album> mLstAlbum;
     LoadAlbumList loadAlbumList;
 
@@ -63,8 +66,16 @@ public class FragmentAlbum extends Fragment {
 
     private void initControls() {
         mRvAlbumList = (RecyclerView) mView.findViewById(R.id.rv_album_list);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+//        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+//        mRvAlbumList.setLayoutManager(layoutManager);
+
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
         mRvAlbumList.setLayoutManager(layoutManager);
+
+        int spanCount = 2; // 2 columns
+        int spacing = 40; // 40px
+        boolean includeEdge = true;
+        mRvAlbumList.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, includeEdge));
 
         mProgressBar = (ProgressBar) mView.findViewById(R.id.progress_bar_album_list);
     }
@@ -80,9 +91,12 @@ public class FragmentAlbum extends Fragment {
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            mAlbumAdapter = new AlbumListAdapter(getActivity(), mLstAlbum);
+//            mAlbumAdapter = new AlbumListAdapter(getActivity(), mLstAlbum);
+//            mRvAlbumList.setAdapter(mAlbumAdapter);
+
+            mAlbumGridAdapter = new AlbumGridAdapter(getActivity(), mLstAlbum);
+            mRvAlbumList.setAdapter(mAlbumGridAdapter);
             mProgressBar.setVisibility(View.GONE);
-            mRvAlbumList.setAdapter(mAlbumAdapter);
         }
     }
 

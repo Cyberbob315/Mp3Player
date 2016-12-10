@@ -6,6 +6,7 @@
 
     <!-- TODO: Update blank fragment layout -->
     <android.support.v7.widget.RecyclerView
+        android:background="@color/pager_background"
         android:id="@+id/rv_song_list_playing"
         android:layout_width="match_parent"
         android:layout_height="match_parent">

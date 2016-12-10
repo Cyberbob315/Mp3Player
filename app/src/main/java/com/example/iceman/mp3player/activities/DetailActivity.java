@@ -1,35 +1,54 @@
 package com.example.iceman.mp3player.activities;
 
 import android.content.Intent;
-import android.support.v4.content.ContextCompat;
+import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ImageView;
 
 import com.example.iceman.mp3player.R;
 import com.example.iceman.mp3player.adapter.MainAdapter;
 import com.example.iceman.mp3player.adapter.ViewPagerDetailAdapter;
+import com.example.iceman.mp3player.utils.AppController;
 
 public class DetailActivity extends AppCompatActivity implements View.OnClickListener {
 
-    TextView mTvSong;
-    TextView mTvAlbum;
-    TextView mTvArtist;
     ViewPager mViewPager;
     ViewPagerDetailAdapter mVPAdapter;
-
+    ImageView imgBackGround;
+    TabLayout tabLayoutDetail;
     String idType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_detail);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         initControls();
         initEvents();
         getType();
+        AppController.getInstance().setDefaultWallpaper(imgBackGround);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+
     }
 
     private void getType() {
@@ -37,21 +56,15 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         idType = intent.getStringExtra(MainAdapter.KEY_MAIN);
 
         if (idType.equals(getString(R.string.list_song))) {
-            mTvSong.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.usui_grey));
             mViewPager.setCurrentItem(0);
         } else if (idType.equals(getString(R.string.album_list))) {
-            mTvAlbum.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.usui_grey));
             mViewPager.setCurrentItem(1);
         } else if (idType.equals(getString(R.string.artist_list))) {
-            mTvArtist.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.usui_grey));
             mViewPager.setCurrentItem(2);
         }
     }
 
     private void initEvents() {
-        mTvArtist.setOnClickListener(this);
-        mTvSong.setOnClickListener(this);
-        mTvAlbum.setOnClickListener(this);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -62,20 +75,8 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
             public void onPageSelected(int position) {
                 switch (position) {
                     case 0:
-                        mTvSong.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.usui_grey));
-                        mTvAlbum.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                        mTvArtist.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                        break;
                     case 1:
-                        mTvSong.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                        mTvAlbum.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.usui_grey));
-                        mTvArtist.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                        break;
                     case 2:
-                        mTvSong.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                        mTvAlbum.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                        mTvArtist.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.usui_grey));
-                        break;
                 }
             }
 
@@ -87,15 +88,15 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void initControls() {
-        mTvSong = (TextView) findViewById(R.id.tv_song_detail);
-        mTvAlbum = (TextView) findViewById(R.id.tv_album_detail);
-        mTvArtist = (TextView) findViewById(R.id.tv_artist_detail);
+        imgBackGround = (ImageView) findViewById(R.id.img_back_ground_detail);
 
+
+        tabLayoutDetail = (TabLayout) findViewById(R.id.tablayout_detail);
         mViewPager = (ViewPager) findViewById(R.id.view_pager_detail);
-        mVPAdapter = new ViewPagerDetailAdapter(getSupportFragmentManager());
+        tabLayoutDetail.setupWithViewPager(mViewPager);
+        mVPAdapter = new ViewPagerDetailAdapter(getSupportFragmentManager(), this);
         mViewPager.setOffscreenPageLimit(3);
         mViewPager.setAdapter(mVPAdapter);
-
 
 
     }
@@ -103,24 +104,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.tv_song_detail:
-                mTvSong.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.usui_grey));
-                mTvAlbum.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                mTvArtist.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                mViewPager.setCurrentItem(0);
-                break;
-            case R.id.tv_album_detail:
-                mTvSong.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                mTvAlbum.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.usui_grey));
-                mTvArtist.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                mViewPager.setCurrentItem(1);
-                break;
-            case R.id.tv_artist_detail:
-                mTvSong.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                mTvAlbum.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.black));
-                mTvArtist.setBackgroundColor(ContextCompat.getColor(DetailActivity.this, R.color.usui_grey));
-                mViewPager.setCurrentItem(2);
-                break;
+
         }
     }
 }

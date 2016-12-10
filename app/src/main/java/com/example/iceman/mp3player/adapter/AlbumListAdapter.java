@@ -45,8 +45,12 @@ public class AlbumListAdapter extends RecyclerView.Adapter<AlbumListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolderAlbum holder, int position) {
         Album item = mData.get(position);
-//        holder.ivImgAlbum.setImageBitmap(item.getAlbumArt());
-        Glide.with(mContext).load(mData.get(position).getAlbumArtPath()).into(holder.ivImgAlbum);
+        String path =  mData.get(position).getAlbumArtPath();
+        if(path != null) {
+            Glide.with(mContext).load(path).into(holder.ivImgAlbum);
+        }else{
+            holder.ivImgAlbum.setImageResource(R.drawable.default_cover_big);
+        }
         holder.tvAlbumTitle.setText(item.getTitle());
         holder.tvArtist.setText(item.getArtist());
         holder.setId(position);
