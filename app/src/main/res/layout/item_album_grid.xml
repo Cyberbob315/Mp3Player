@@ -15,10 +15,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#CCFFFFFF"
+        android:background="@color/pager_background"
         android:layout_alignParentBottom="true">
         <TextView
             android:id="@+id/tv_album_title_item"
+            android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
@@ -29,6 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
+            android:textColor="@color/white"
             android:text="@string/artist_list"
             android:textSize="@dimen/text_size_small"
             />

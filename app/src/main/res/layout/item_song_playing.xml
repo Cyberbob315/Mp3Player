@@ -6,8 +6,9 @@
     >
 
     <ImageView
-        android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:scaleType="fitXY"
         android:src="@mipmap/ic_launcher"
         android:id="@+id/img_album_song_play"
         android:layout_centerVertical="true"/>

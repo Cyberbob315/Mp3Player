@@ -48,6 +48,7 @@ public class FragmentPlay extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        registerBroadcastAlbumArt();
         if (getArguments() != null) {
             path = getArguments().getString(KEY_ALBUM_PLAY);
         }
@@ -60,7 +61,7 @@ public class FragmentPlay extends Fragment {
         mView = inflater.inflate(R.layout.fragment_play, container, false);
         initControls();
         showImage();
-        registerBroadcastAlbumArt();
+
         return mView;
     }
 
@@ -84,6 +85,8 @@ public class FragmentPlay extends Fragment {
 
 
     private void showImage() {
+
+
         if (path != null) {
             Bitmap bitmap = BitmapFactory.decodeFile(path);
             mIvAlbum.setImageBitmap(bitmap);
@@ -97,6 +100,12 @@ public class FragmentPlay extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         unregisterBroadcastAlbumArt();
     }
 

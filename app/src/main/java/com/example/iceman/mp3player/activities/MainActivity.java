@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
@@ -176,6 +177,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     intent.putExtra(PlayMusicActivity.IS_PlAYING, true);
                     intent.putExtra(PlayMusicActivity.LIST_SONG_SHUFFLE, musicService.getLstSongShuffle());
                     intent.putExtra(PlayMusicActivity.IS_SHUFFLE, musicService.isShuffle());
+
+                    Log.d("SONG_PATH",musicService.getCurrentSong().getPath());
+                    Log.d("SONG_POS",musicService.getCurrentSongPos() + "");
+                    Log.d("LIST_SONG",musicService.getLstSongPlaying() + "");
                     startActivity(intent);
                 }
                 break;

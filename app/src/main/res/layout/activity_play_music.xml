@@ -4,7 +4,7 @@
     android:id="@+id/activity_play_music"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/default_wallpaper"
+    android:background="@drawable/default_player_bg"
     android:fitsSystemWindows="true"
     tools:context="com.example.iceman.mp3player.activities.PlayMusicActivity">
 
@@ -16,42 +16,29 @@
         android:minHeight="?attr/actionBarSize">
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-            <RelativeLayout
+            <TextView
+                android:id="@+id/tv_song_name_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toLeftOf="@+id/btn_search_playing">
-                <TextView
-                    android:id="@+id/tv_song_name_play"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/list_song"
-                    android:textColor="@color/white"
-                    android:maxLines="1"
-                    android:textSize="@dimen/text_size_big" />
+                android:maxLines="1"
+                android:text="@string/list_song"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_big" />
 
-                <TextView
-                    android:id="@+id/tv_artist_play"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/tv_song_name_play"
-                    android:text="@string/artist_list"
-                    android:textColor="@color/white"
-                    android:maxLines="1"
-                    android:textSize="@dimen/text_size_normal" />
-            </RelativeLayout>
-
-            <ImageView
-                android:visibility="gone"
-                android:layout_centerVertical="true"
-                android:id="@+id/btn_search_playing"
+            <TextView
+                android:id="@+id/tv_artist_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:src="@drawable/ic_action_search_dark" />
+                android:layout_below="@+id/tv_song_name_play"
+                android:maxLines="1"
+                android:text="@string/artist_list"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_normal" />
         </RelativeLayout>
+
     </android.support.v7.widget.Toolbar>
 
     <android.support.v4.view.ViewPager

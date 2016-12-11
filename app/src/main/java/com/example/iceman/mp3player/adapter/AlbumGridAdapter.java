@@ -54,6 +54,12 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
         holder.setId(position);
     }
 
+    public void setFilter(ArrayList<Album> lstFiltered) {
+        mData = new ArrayList<>();
+        mData.addAll(lstFiltered);
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemCount() {
         return mData.size();

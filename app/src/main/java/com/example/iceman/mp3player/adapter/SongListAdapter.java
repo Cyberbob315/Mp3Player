@@ -26,11 +26,13 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
 
     Context mContext;
     ArrayList<Song> mData;
+    ArrayList<Song> mDataToSend;
     LayoutInflater mLayoutInflater;
 
     public SongListAdapter(Context mContext, ArrayList<Song> mData) {
         this.mContext = mContext;
         this.mData = mData;
+        mDataToSend = (ArrayList<Song>) mData.clone();
         mLayoutInflater = LayoutInflater.from(mContext);
     }
 
@@ -53,7 +55,13 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
         return mData.size();
     }
 
-    public class ViewHolderSong extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public void setFilter(ArrayList<Song> lstSong) {
+        mData = new ArrayList<>();
+        mData.addAll(lstSong);
+        notifyDataSetChanged();
+    }
+
+    public class ViewHolderSong extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView tvTitle;
         TextView tvArtist;
         int id;
@@ -78,11 +86,10 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
             Intent intent = new Intent(mContext, PlayMusicActivity.class);
             intent.putExtra(SONG_PATH, mData.get(id).getPath());
             intent.putExtra(SONG_POS, id);
-            intent.putExtra(LIST_SONG, mData);
-            intent.putExtra(PlayMusicActivity.IS_PlAYING,false);
+            intent.putExtra(LIST_SONG, mDataToSend);
+            intent.putExtra(PlayMusicActivity.IS_PlAYING, false);
             mContext.startActivity(intent);
-
-
         }
+
     }
 }

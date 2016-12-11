@@ -3,10 +3,16 @@ package com.example.iceman.mp3player.fragments;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -19,7 +25,7 @@ import com.example.iceman.mp3player.utils.AppController;
 import java.util.ArrayList;
 
 
-public class FragmentArtist extends Fragment {
+public class FragmentArtist extends Fragment implements SearchView.OnQueryTextListener {
     View mView;
     RecyclerView mRvListArtist;
     ArrayList<Artist> mLstArtist;
@@ -58,9 +64,59 @@ public class FragmentArtist extends Fragment {
         return mView;
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_search_detail, menu);
+        MenuItem item = menu.findItem(R.id.action_search_detail);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        searchView.setOnQueryTextListener(this);
+
+        MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                mArtistAdapter.filter(mLstArtist);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                return true;
+            }
+        });
+    }
+
+    private ArrayList<Artist> filter(ArrayList<Artist> lstArtist, String query) {
+        query = query.toLowerCase();
+        ArrayList<Artist> filteredArtistList = new ArrayList<>();
+        for (Artist artist : lstArtist) {
+            String text = artist.getName().toLowerCase();
+            if (text.contains(query)) {
+                filteredArtistList.add(artist);
+            }
+        }
+        return filteredArtistList;
+    }
+
     private void showListArtist() {
         loadArtistList = new LoadArtistList();
         loadArtistList.execute();
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        mArtistAdapter.filter(filter(mLstArtist, newText));
+        return true;
     }
 
     private class LoadArtistList extends AsyncTask {
@@ -91,7 +147,7 @@ public class FragmentArtist extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if(loadArtistList != null && loadArtistList.getStatus() != AsyncTask.Status.FINISHED){
+        if (loadArtistList != null && loadArtistList.getStatus() != AsyncTask.Status.FINISHED) {
             loadArtistList.cancel(true);
         }
     }

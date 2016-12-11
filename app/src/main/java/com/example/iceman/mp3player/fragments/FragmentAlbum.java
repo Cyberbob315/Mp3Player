@@ -3,10 +3,16 @@ package com.example.iceman.mp3player.fragments;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -25,7 +31,7 @@ import java.util.ArrayList;
  * Use the {@link FragmentAlbum#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FragmentAlbum extends Fragment {
+public class FragmentAlbum extends Fragment implements SearchView.OnQueryTextListener {
 
     ProgressBar mProgressBar;
     View mView;
@@ -64,6 +70,34 @@ public class FragmentAlbum extends Fragment {
         return mView;
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_search_detail, menu);
+        MenuItem item = menu.findItem(R.id.action_search_detail);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        searchView.setOnQueryTextListener(this);
+
+        MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                mAlbumGridAdapter.setFilter(mLstAlbum);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                return true;
+            }
+        });
+
+    }
+
     private void initControls() {
         mRvAlbumList = (RecyclerView) mView.findViewById(R.id.rv_album_list);
 //        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
@@ -78,6 +112,30 @@ public class FragmentAlbum extends Fragment {
         mRvAlbumList.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, includeEdge));
 
         mProgressBar = (ProgressBar) mView.findViewById(R.id.progress_bar_album_list);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        mAlbumGridAdapter.setFilter(filter(mLstAlbum, newText));
+        return true;
+    }
+
+    private ArrayList<Album> filter(ArrayList<Album> lstAlbum, String query) {
+        query = query.toLowerCase();
+        ArrayList<Album> filteredAlbumList = new ArrayList<>();
+
+        for (Album album : lstAlbum) {
+            String text = album.getTitle().toLowerCase();
+            if (text.contains(query)) {
+                filteredAlbumList.add(album);
+            }
+        }
+        return filteredAlbumList;
     }
 
     private class LoadAlbumList extends AsyncTask {
@@ -108,7 +166,7 @@ public class FragmentAlbum extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if(loadAlbumList != null && loadAlbumList.getStatus() != AsyncTask.Status.FINISHED){
+        if (loadAlbumList != null && loadAlbumList.getStatus() != AsyncTask.Status.FINISHED) {
             loadAlbumList.cancel(true);
         }
     }

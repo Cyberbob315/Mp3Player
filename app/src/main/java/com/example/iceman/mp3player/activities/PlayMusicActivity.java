@@ -67,13 +67,12 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     int currentPos;
     int currentPosShuffle;
     boolean isShuffle = false;
-    boolean isPlaying;
+    boolean isPlaying = true;
     TextView mTvSongName;
     TextView mTvArtist;
     ViewPager mViewPager;
     ViewPagerPlayAdapter mVpPlayAdapter;
     boolean isSeeking;
-    ImageView btnSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +89,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         mData = new ArrayList<>();
         getDataFromIntent();
         initControls();
+        Log.d("isPlaying:",isPlaying +"");
         if (!isPlaying) {
             initPlayService();
 
@@ -97,6 +97,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             mPlayMusicService = (PlayMusicService) AppController.getInstance().getPlayMusicService();
             updateSeekBar();
             totalTime = mPlayMusicService.getTotalTime();
+
             mPlayMusicService.showNotification();
             setName();
         }
@@ -133,7 +134,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         if (albumPath != null) {
             bitmap = BitmapFactory.decodeFile(albumPath);
         } else {
-            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_wallpaper);
+            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_player_bg);
         }
         bitmap = BlurBuilder.blur(this, bitmap);
         BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
@@ -176,6 +177,8 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             currentPos = intent.getExtras().getInt(SongListPlayingAdapter.KEY_ID_SWITH);
             currentPosShuffle = getCurrentPosShuffle();
             path = mData.get(currentPos).getPath();
+            mPlayMusicService.setDataForNotification(mData,mDataShuffle,isShuffle,
+                    currentPos,mData.get(currentPos),mData.get(currentPos).getAlbumImagePath());
             playMusic();
             mPlayMusicService.setShowNotification(false);
             mPlayMusicService.showNotification();
@@ -223,29 +226,6 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                switch (position) {
-                    case 0:
-                        btnSearch.setVisibility(View.VISIBLE);
-                        break;
-                    case 1:
-                        btnSearch.setVisibility(View.GONE);
-                        break;
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
     }
 
     @Override
@@ -278,7 +258,6 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         btnRepeat = (ImageView) findViewById(R.id.btn_repeat);
         tvTotalTime = (TextView) findViewById(R.id.tv_time_left);
         tvTimePlayed = (TextView) findViewById(R.id.tv_time_played);
-        btnSearch = (ImageView) findViewById(R.id.btn_search_playing);
 
         mViewPager = (ViewPager) findViewById(R.id.view_pager_play);
         mVpPlayAdapter = new ViewPagerPlayAdapter(getSupportFragmentManager(), mData);
@@ -419,8 +398,6 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
                     btnRepeat.setImageResource(R.drawable.ic_widget_repeat_one);
                     mPlayMusicService.setRepeat(true);
                 }
-                break;
-            case R.id.btn_search_playing:
                 break;
         }
     }

@@ -1,6 +1,7 @@
 package com.example.iceman.mp3player.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.iceman.mp3player.R;
+import com.example.iceman.mp3player.activities.ArtistListActivity;
 import com.example.iceman.mp3player.models.Artist;
 
 import java.util.ArrayList;
@@ -17,6 +19,9 @@ import java.util.ArrayList;
  */
 
 public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolderArtist> {
+
+    public static final String KEY_ARTIST = "key_artist";
+
     Context mContext;
     ArrayList<Artist> mData;
     LayoutInflater mLayoutInflater;
@@ -39,6 +44,12 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
     public void onBindViewHolder(ViewHolderArtist holder, int position) {
         holder.tvArtist.setText(mData.get(position).getName());
         holder.setId(position);
+    }
+
+    public void filter(ArrayList<Artist> lstArtist) {
+        mData = new ArrayList<>();
+        mData.addAll(lstArtist);
+        notifyDataSetChanged();
     }
 
     @Override
@@ -66,7 +77,9 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
 
         @Override
         public void onClick(View v) {
-//            Toast.makeText(mContext, "" + mData.get(id).getLstSong().size(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(mContext, ArtistListActivity.class);
+            intent.putExtra(KEY_ARTIST, mData.get(id).getId());
+            mContext.startActivity(intent);
         }
     }
 }

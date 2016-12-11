@@ -44,7 +44,7 @@
 
         <activity
             android:name=".activities.AlbumListActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <receiver android:name=".receivers.PrevMusicBroadcastReceiver">
             <intent-filter>
@@ -57,7 +57,7 @@
             </intent-filter>
         </receiver>
 
-
+        <activity android:name=".activities.ArtistListActivity"></activity>
     </application>
 
 </manifest>

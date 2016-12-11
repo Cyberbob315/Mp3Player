@@ -98,7 +98,6 @@ public class PlayMusicService extends Service {
                 musicActivity.changePlayButtonState();
             }
             pauseMusic();
-            stopSelf();
             stopForeground(true);
             isShowNotification = false;
 
@@ -213,8 +212,8 @@ public class PlayMusicService extends Service {
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(SongListAdapter.SONG_PATH, currentSong.getPath());
         intent.putExtra(SongListAdapter.SONG_POS, currentSongPos);
+        intent.putExtra(SongListAdapter.SONG_PATH, lstSongPlaying.get(currentSongPos).getPath());
         intent.putExtra(SongListAdapter.LIST_SONG, lstSongPlaying);
         intent.putExtra(PlayMusicActivity.IS_PlAYING, true);
         intent.putExtra(PlayMusicActivity.LIST_SONG_SHUFFLE, lstSongShuffle);
@@ -285,6 +284,7 @@ public class PlayMusicService extends Service {
 
         if (!isShowNotification) {
             startForeground(NOTIFCATION_ID, n);
+            Log.d("Playservice", "vaoday");
         }
         return n;
     }
