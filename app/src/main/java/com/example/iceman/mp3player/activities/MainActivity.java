@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void showCurrentSong() {
+    public void showCurrentSong() {
         if (musicService != null) {
             tvTitle.setText(musicService.getCurrentSong().getTitle());
             tvArtist.setText(musicService.getCurrentSong().getArtist());

@@ -28,6 +28,7 @@ import com.example.iceman.mp3player.fragments.FragmentPlay;
 import com.example.iceman.mp3player.models.Song;
 import com.example.iceman.mp3player.receivers.RemoteReceiver;
 import com.example.iceman.mp3player.utils.AppController;
+import com.example.iceman.mp3player.utils.Common;
 import com.example.iceman.mp3player.utils.Constants;
 
 import java.io.IOException;
@@ -106,7 +107,7 @@ public class PlayMusicService extends Service {
             isShowNotification = false;
 
         } else {
-            showNotification();
+            showNotification(isShowNotification());
             isShowNotification = true;
         }
 
@@ -207,7 +208,7 @@ public class PlayMusicService extends Service {
         isShowNotification = showNotification;
     }
 
-    public Notification showNotification() {
+    public Notification showNotification(boolean isUpdate) {
 
         bigViews = new RemoteViews(getPackageName(), R.layout.notification_view_expanded);
         views = new RemoteViews(getPackageName(), R.layout.notification_view);
@@ -279,7 +280,7 @@ public class PlayMusicService extends Service {
         views.setOnClickPendingIntent(R.id.btn_next_noti, pendingIntentNext);
         views.setOnClickPendingIntent(R.id.btn_play_pause_noti, pendingIntentPlayPause);
 
-        if (!isShowNotification) {
+        if (isUpdate) {
             startForeground(NOTIFICATION_ID, n);
         }
         return n;
@@ -380,6 +381,8 @@ public class PlayMusicService extends Service {
                 if (AppController.getInstance().getPlayMusicActivity() != null) {
                     Intent intent = new Intent(Constants.ACTION_COMPLETE_SONG);
                     sendBroadcast(intent);
+                    showNotification(true);
+                    Common.updateMainActivity();
                 } else {
                     if (isRepeat()) {
                         playMusic(currentSong.getPath());

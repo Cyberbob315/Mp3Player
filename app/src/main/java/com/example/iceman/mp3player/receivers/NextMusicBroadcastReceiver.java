@@ -17,15 +17,15 @@ public class NextMusicBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         PlayMusicActivity musicActivity = (PlayMusicActivity) AppController.getInstance().getPlayMusicActivity();
         PlayMusicService musicService = (PlayMusicService) AppController.getInstance().getPlayMusicService();
-        musicService.setShowNotification(false);
+//        musicService.setShowNotification(false);
         if (musicActivity != null) {
             musicActivity.nextMusic();
 
         } else {
             musicService.nextMusic();
         }
-        musicService.showNotification();
-        musicService.setShowNotification(true);
+        musicService.showNotification(true);
+//        musicService.setShowNotification(true);
 
     }
 }

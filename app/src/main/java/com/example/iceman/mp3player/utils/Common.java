@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.view.WindowManager;
 
 import com.example.iceman.mp3player.R;
+import com.example.iceman.mp3player.activities.MainActivity;
 
 /**
  * Created by IceMan on 12/10/2016.
@@ -28,5 +29,12 @@ public class Common {
         int min = totalTimeInSec / 60;
         int sec = totalTimeInSec - min * 60;
         return String.format("%02d:%02d", min, sec);
+    }
+
+    public static void updateMainActivity(){
+        MainActivity mainActivity = (MainActivity) AppController.getInstance().getMainActivity();
+        if(mainActivity != null){
+            mainActivity.showCurrentSong();
+        }
     }
 }

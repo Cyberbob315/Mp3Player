@@ -26,9 +26,9 @@ public class HeadSetReceiver extends BroadcastReceiver {
                 musicService.pauseMusic();
             }
             Log.d("Headphone", "Headset unplugged");
-            musicService.setShowNotification(false);
-            musicService.showNotification();
-            musicService.setShowNotification(true);
+//            musicService.setShowNotification(false);
+            musicService.showNotification(true);
+//            musicService.setShowNotification(true);
         }
 
         }

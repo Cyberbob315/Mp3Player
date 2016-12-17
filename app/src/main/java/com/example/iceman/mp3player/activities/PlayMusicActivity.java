@@ -89,7 +89,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         } else {
             updateSeekBar();
             totalTime = mPlayMusicService.getTotalTime();
-            mPlayMusicService.showNotification();
+            mPlayMusicService.showNotification(!mPlayMusicService.isShowNotification());
             setName();
             if (!isPlaying) {
                 playMusic();
@@ -146,6 +146,10 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             updateSeekBar();
             updateHomeActivity();
             setAlbumArt();
+//            mPlayMusicService.setShowNotification(false);
+            mPlayMusicService.showNotification(true);
+//            mPlayMusicService.setShowNotification(true);
+            Common.updateMainActivity();
         }
     };
 
@@ -168,9 +172,9 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
             mPlayMusicService.setDataForNotification(mData,
                     currentPos, mData.get(currentPos), mData.get(currentPos).getAlbumImagePath());
             playMusic();
-            mPlayMusicService.setShowNotification(false);
-            mPlayMusicService.showNotification();
-            mPlayMusicService.setShowNotification(true);
+//            mPlayMusicService.setShowNotification(false);
+            mPlayMusicService.showNotification(true);
+//            mPlayMusicService.setShowNotification(true);
         }
     };
 
@@ -218,7 +222,6 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -264,9 +267,9 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         startService(intent1);
         setName();
         setAlbumArt();
-        mPlayMusicService.setShowNotification(false);
-        mPlayMusicService.showNotification();
-        mPlayMusicService.setShowNotification(true);
+//        mPlayMusicService.setShowNotification(false);
+        mPlayMusicService.showNotification(true);
+//        mPlayMusicService.setShowNotification(true);
         updateHomeActivity();
     }
 
@@ -333,21 +336,15 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         switch (v.getId()) {
             case R.id.btn_next:
                 nextMusic();
-                mPlayMusicService.setShowNotification(false);
-                mPlayMusicService.showNotification();
-                mPlayMusicService.setShowNotification(true);
+                mPlayMusicService.showNotification(true);
                 break;
             case R.id.btn_play_pause:
                 playPauseMusic();
-                mPlayMusicService.setShowNotification(false);
-                mPlayMusicService.showNotification();
-                mPlayMusicService.setShowNotification(true);
+                mPlayMusicService.showNotification(true);
                 break;
             case R.id.btn_prev:
                 backMusic();
-                mPlayMusicService.setShowNotification(false);
-                mPlayMusicService.showNotification();
-                mPlayMusicService.setShowNotification(true);
+                mPlayMusicService.showNotification(true);
                 break;
             case R.id.btn_shuffle:
                 if (mPlayMusicService == null) return;

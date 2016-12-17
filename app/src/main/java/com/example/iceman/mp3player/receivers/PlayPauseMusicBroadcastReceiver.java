@@ -18,14 +18,14 @@ public class PlayPauseMusicBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         PlayMusicActivity musicActivity = (PlayMusicActivity) AppController.getInstance().getPlayMusicActivity();
         PlayMusicService musicService = (PlayMusicService) AppController.getInstance().getPlayMusicService();
-        musicService.setShowNotification(false);
+//        musicService.setShowNotification(false);
         if (musicActivity != null) {
             musicActivity.playPauseMusic();
             Log.d("playpause","test");
         } else {
             musicService.playPauseMusic();
         }
-        musicService.showNotification();
-        musicService.setShowNotification(true);
+        musicService.showNotification(true);
+//        musicService.setShowNotification(true);
     }
 }
