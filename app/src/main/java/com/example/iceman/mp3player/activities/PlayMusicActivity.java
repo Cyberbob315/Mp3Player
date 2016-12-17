@@ -25,7 +25,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.iceman.mp3player.R;
 import com.example.iceman.mp3player.adapter.SongListAdapter;
@@ -36,18 +35,16 @@ import com.example.iceman.mp3player.models.Song;
 import com.example.iceman.mp3player.services.PlayMusicService;
 import com.example.iceman.mp3player.utils.AppController;
 import com.example.iceman.mp3player.utils.BlurBuilder;
+import com.example.iceman.mp3player.utils.Common;
 import com.example.iceman.mp3player.utils.Constants;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class PlayMusicActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String IS_PlAYING = "is_playing";
     public static final String LIST_SONG_SHUFFLE = "list_song_shuffle";
-    public static final String IS_SHUFFLE = "is_shuffle";
+    public static final String IS_PAUSE = "is_pause";
 
 
     private SeekBar seekBar;
@@ -63,9 +60,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     RelativeLayout layout;
     int totalTime;
     ArrayList<Song> mData;
-    ArrayList<Song> mDataShuffle;
     int currentPos;
-    int currentPosShuffle;
     boolean isShuffle = false;
     boolean isPlaying = true;
     TextView mTvSongName;
@@ -80,35 +75,35 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.activity_play_music);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_playing);
         setSupportActionBar(toolbar);
-        toolbar.setOverflowIcon(ContextCompat.getDrawable(this,R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha));
+        toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha));
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         AppController.getInstance().setPlayMusicActivity(this);
-        mData = new ArrayList<>();
+        mPlayMusicService = (PlayMusicService) AppController.getInstance().getPlayMusicService();
         getDataFromIntent();
         initControls();
-        Log.d("isPlaying:",isPlaying +"");
-        if (!isPlaying) {
+        if (mPlayMusicService == null) {
             initPlayService();
-
         } else {
-            mPlayMusicService = (PlayMusicService) AppController.getInstance().getPlayMusicService();
             updateSeekBar();
             totalTime = mPlayMusicService.getTotalTime();
-
             mPlayMusicService.showNotification();
             setName();
+            if (!isPlaying) {
+                playMusic();
+            }
+            updateRepeatButton();
+            updateShuffleButton();
+            updatePlayPauseButton();
         }
-        setStatusBarTranslucent(true);
 
+        setStatusBarTranslucent(true);
         initEvents();
         registerBroadcastSongComplete();
         registerBroadcastSwitchSong();
-        registerUnbindService();
         setAlbumArt();
-
         updateHomeActivity();
 
     }
@@ -124,13 +119,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         sendBroadcast(intent1);
         Bitmap bitmap;
         String albumPath;
-
-        if (!isShuffle) {
-            albumPath = mData.get(currentPos).getAlbumImagePath();
-
-        } else {
-            albumPath = mDataShuffle.get(currentPosShuffle).getAlbumImagePath();
-        }
+        albumPath = mData.get(currentPos).getAlbumImagePath();
         if (albumPath != null) {
             bitmap = BitmapFactory.decodeFile(albumPath);
         } else {
@@ -175,10 +164,9 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         @Override
         public void onReceive(Context context, Intent intent) {
             currentPos = intent.getExtras().getInt(SongListPlayingAdapter.KEY_ID_SWITH);
-            currentPosShuffle = getCurrentPosShuffle();
             path = mData.get(currentPos).getPath();
-            mPlayMusicService.setDataForNotification(mData,mDataShuffle,isShuffle,
-                    currentPos,mData.get(currentPos),mData.get(currentPos).getAlbumImagePath());
+            mPlayMusicService.setDataForNotification(mData,
+                    currentPos, mData.get(currentPos), mData.get(currentPos).getAlbumImagePath());
             playMusic();
             mPlayMusicService.setShowNotification(false);
             mPlayMusicService.showNotification();
@@ -206,7 +194,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                tvTimePlayed.setText(getTime(progress));
+                tvTimePlayed.setText(Common.miliSecondToString(progress));
             }
 
             @Override
@@ -260,7 +248,7 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         tvTimePlayed = (TextView) findViewById(R.id.tv_time_played);
 
         mViewPager = (ViewPager) findViewById(R.id.view_pager_play);
-        mVpPlayAdapter = new ViewPagerPlayAdapter(getSupportFragmentManager(), mData);
+        mVpPlayAdapter = new ViewPagerPlayAdapter(getSupportFragmentManager(), mData, mData.get(currentPos).getAlbumImagePath());
         mViewPager.setAdapter(mVpPlayAdapter);
         mViewPager.setOffscreenPageLimit(2);
         mViewPager.setCurrentItem(1);
@@ -269,13 +257,9 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
     private void playMusic() {
         mPlayMusicService.playMusic(path);
-        if (isShuffle) {
-            Song item = mDataShuffle.get(currentPosShuffle);
-            mPlayMusicService.setDataForNotification(mData, mDataShuffle, isShuffle, currentPos, item, item.getAlbumImagePath());
-        } else {
-            Song item = mData.get(currentPos);
-            mPlayMusicService.setDataForNotification(mData, mDataShuffle, isShuffle, currentPos, item, item.getAlbumImagePath());
-        }
+        totalTime = mPlayMusicService.getTotalTime();
+        Song item = mData.get(currentPos);
+        mPlayMusicService.setDataForNotification(mData, currentPos, item, item.getAlbumImagePath());
         Intent intent1 = new Intent(this, PlayMusicService.class);
         startService(intent1);
         setName();
@@ -287,35 +271,20 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     }
 
 
-    private static String getTime(int totalTimeInSec) {
-        int min = totalTimeInSec / 60;
-        int sec = totalTimeInSec - min * 60;
-        NumberFormat formatter = new DecimalFormat("##");
-
-        return formatter.format(min) + ":" + formatter.format(sec);
-    }
-
-
     private void getDataFromIntent() {
         Intent intent = getIntent();
         isPlaying = intent.getExtras().getBoolean(IS_PlAYING);
         if (isPlaying) {
-            path = intent.getExtras().getString(SongListAdapter.SONG_PATH);
-            currentPos = intent.getExtras().getInt(SongListAdapter.SONG_POS);
-            mData = (ArrayList<Song>) intent.getExtras().getSerializable(SongListAdapter.LIST_SONG);
-            isShuffle = intent.getExtras().getBoolean(IS_SHUFFLE);
-            mDataShuffle = (ArrayList<Song>) intent.getExtras().getSerializable(LIST_SONG_SHUFFLE);
-            currentPosShuffle = getCurrentPosShuffle();
+            path = mPlayMusicService.getCurrentSong().getPath();
+            currentPos = mPlayMusicService.getCurrentSongPos();
+            mData = mPlayMusicService.getLstSongPlaying();
+            isShuffle = mPlayMusicService.isShuffle();
+
         } else {
             path = intent.getExtras().getString(SongListAdapter.SONG_PATH);
             currentPos = intent.getExtras().getInt(SongListAdapter.SONG_POS);
             mData = (ArrayList<Song>) intent.getExtras().getSerializable(SongListAdapter.LIST_SONG);
-            mDataShuffle = (ArrayList<Song>) mData.clone();
-            Collections.shuffle(mDataShuffle);
-            currentPosShuffle = getCurrentPosShuffle();
         }
-
-
     }
 
     private void initPlayService() {
@@ -347,9 +316,9 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
 
         if (!isSeeking) {
             seekBar.setProgress(currentLength);
-            tvTimePlayed.setText(getTime(currentLength));
+            tvTimePlayed.setText(Common.miliSecondToString(currentLength));
         }
-        tvTotalTime.setText(getTime(totalTime));
+        tvTotalTime.setText(Common.miliSecondToString(totalTime));
         Handler musicHandler = new Handler();
         musicHandler.post(new Runnable() {
             @Override
@@ -381,18 +350,20 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
                 mPlayMusicService.setShowNotification(true);
                 break;
             case R.id.btn_shuffle:
-                if (isShuffle) {
+                if (mPlayMusicService == null) return;
+                if (mPlayMusicService.isShuffle()) {
                     btnShuffle.setImageResource(R.drawable.ic_widget_shuffle_off);
-                    isShuffle = false;
+                    mPlayMusicService.setShuffle(false);
+                    Log.d("nhannt", "true");
                 } else {
                     btnShuffle.setImageResource(R.drawable.ic_widget_shuffle_on);
-                    isShuffle = true;
+                    mPlayMusicService.setShuffle(true);
+                    Log.d("nhannt", "false");
                 }
-
                 break;
             case R.id.btn_repeat:
                 if (mPlayMusicService.isRepeat()) {
-                    btnRepeat.setImageResource(R.drawable.ic_widget_repeat_all);
+                    btnRepeat.setImageResource(R.drawable.ic_widget_repeat_off);
                     mPlayMusicService.setRepeat(false);
                 } else {
                     btnRepeat.setImageResource(R.drawable.ic_widget_repeat_one);
@@ -431,135 +402,54 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void nextMusic() {
-        if (isShuffle) {
-            if (currentPosShuffle == mDataShuffle.size() - 1) {
-                currentPosShuffle = 0;
-            } else {
-                currentPosShuffle++;
-            }
-            path = mDataShuffle.get(currentPosShuffle).getPath();
-            currentPos = getCurrentPos();
-        } else {
-            if (currentPos == mData.size() - 1) {
-                currentPos = 0;
-            } else {
-                currentPos++;
-            }
+        if (!mPlayMusicService.isRepeat()) {
+            currentPos = mPlayMusicService.getNextPosition();
             path = mData.get(currentPos).getPath();
-            currentPosShuffle = getCurrentPosShuffle();
         }
         setAlbumArt();
         playMusic();
+    }
 
+    public void updatePlayPauseButton() {
+        if (mPlayMusicService != null) {
+            if (mPlayMusicService.isPlaying()) {
+                btnPlayPause.setImageResource(R.drawable.pb_pause);
+            } else {
+                btnPlayPause.setImageResource(R.drawable.pb_play);
+            }
+        }
+    }
+
+    public void updateShuffleButton() {
+        if (mPlayMusicService.isShuffle()) {
+            btnShuffle.setImageResource(R.drawable.ic_widget_shuffle_on);
+        } else {
+            btnShuffle.setImageResource(R.drawable.ic_widget_shuffle_off);
+        }
+    }
+
+    public void updateRepeatButton() {
+        if (mPlayMusicService.isRepeat()) {
+            btnRepeat.setImageResource(R.drawable.ic_widget_repeat_one);
+        } else {
+            btnRepeat.setImageResource(R.drawable.ic_widget_repeat_off);
+        }
     }
 
     public void backMusic() {
-        if (isShuffle) {
-            if (currentPosShuffle == 0) {
-                currentPosShuffle = mDataShuffle.size() - 1;
-            } else {
-                currentPosShuffle--;
-            }
-            path = mDataShuffle.get(currentPosShuffle).getPath();
-            currentPos = getCurrentPos();
-        } else {
-            if (currentPos == 0) {
-                currentPos = mData.size() - 1;
-            } else {
-                currentPos--;
-            }
-            path = mData.get(currentPos).getPath();
-            currentPosShuffle = getCurrentPosShuffle();
-        }
+        currentPos = mPlayMusicService.getPrePosition();
+        path = mData.get(currentPos).getPath();
         setAlbumArt();
         playMusic();
     }
 
-    private int getCurrentPosShuffle() {
-        int pos = -1;
-        for (int i = 0; i < mDataShuffle.size(); i++) {
-            if (mDataShuffle.get(i).getId().equals(getCurrentSongId())) {
-                pos = i;
-            }
-        }
-        return pos;
-    }
-
-    private int getCurrentPos() {
-        int pos = -1;
-        for (int i = 0; i < mDataShuffle.size(); i++) {
-            if (mDataShuffle.get(i).getId().equals(getCurrentSongId())) {
-                return i;
-            }
-        }
-        return pos;
-    }
-
-    private String getCurrentSongId() {
-        if (isShuffle) {
-            return mDataShuffle.get(currentPosShuffle).getId();
-        } else {
-            return mData.get(currentPos).getId();
-        }
-    }
 
     private void setName() {
-        if (isShuffle) {
-            mTvSongName.setText(mDataShuffle.get(currentPosShuffle).getTitle());
-            mTvArtist.setText(mDataShuffle.get(currentPosShuffle).getArtist());
-        } else {
-            mTvSongName.setText(mData.get(currentPos).getTitle());
-            mTvArtist.setText(mData.get(currentPos).getArtist());
-        }
+        mTvSongName.setText(mData.get(currentPos).getTitle());
+        mTvArtist.setText(mData.get(currentPos).getArtist());
+
     }
 
-    //    public class BroadcastPrevMusic extends BroadcastReceiver {
-//        public BroadcastPrevMusic() {
-//        }
-//
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            backMusic();
-//        }
-//    }
-    public static class BroadcastPrevMusic extends BroadcastReceiver {
-        public BroadcastPrevMusic() {
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Toast.makeText(context, "Back Music", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void unBindMusicService() {
-        stopService(new Intent(this, PlayMusicService.class));
-        unbindService(serviceConnection);
-        Log.d("CHECK", "UNBIND");
-    }
-
-    BroadcastReceiver unbindService = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (serviceConnection != null) {
-                unbindService(serviceConnection);
-            }
-        }
-    };
-
-    private void registerUnbindService() {
-        if (unbindService != null) {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction("unbind");
-            registerReceiver(unbindService, filter);
-        }
-    }
-
-    private void unregisterUnbindService() {
-        if (unbindService != null) {
-            unregisterReceiver(unbindService);
-        }
-    }
 
     public void changePlayButtonState() {
         btnPlayPause.setImageResource(R.drawable.pb_play);
@@ -570,7 +460,12 @@ public class PlayMusicActivity extends AppCompatActivity implements View.OnClick
         super.onDestroy();
         unRegisterBroadcastSongComplete();
         unRegisterBroadcastSwitchSong();
-        unregisterUnbindService();
         AppController.getInstance().setPlayMusicActivity(null);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.no_change, R.anim.slide_out_down);
     }
 }

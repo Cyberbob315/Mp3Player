@@ -12,8 +12,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 
 import com.example.iceman.mp3player.R;
 import com.example.iceman.mp3player.utils.Constants;
@@ -93,8 +91,8 @@ public class FragmentPlay extends Fragment {
         } else {
             mIvAlbum.setImageResource(R.drawable.default_cover_big);
         }
-        Animation rotateAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_animation);
-        mIvAlbum.startAnimation(rotateAnimation);
+//        Animation rotateAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_animation);
+//        mIvAlbum.startAnimation(rotateAnimation);
     }
 
     @Override

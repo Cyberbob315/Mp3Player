@@ -4,7 +4,7 @@
     android:id="@+id/activity_album_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
+    android:fitsSystemWindows="true"
     android:background="@color/pager_background"
     tools:context="com.example.iceman.mp3player.activities.AlbumListActivity">
     <ImageView

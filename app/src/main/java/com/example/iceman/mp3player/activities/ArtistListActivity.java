@@ -16,6 +16,7 @@ import com.example.iceman.mp3player.adapter.ArtistAdapter;
 import com.example.iceman.mp3player.adapter.SongListAdapter;
 import com.example.iceman.mp3player.models.Song;
 import com.example.iceman.mp3player.utils.AppController;
+import com.example.iceman.mp3player.utils.Common;
 
 import java.util.ArrayList;
 
@@ -34,12 +35,13 @@ public class ArtistListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_artist_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_artist);
         setSupportActionBar(toolbar);
-        toolbar.setOverflowIcon(ContextCompat.getDrawable(this,R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha));
+        toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initControls();
+        Common.setStatusBarTranslucent(true, this);
         getDataFromIntentAndShow();
         AppController.getInstance().setDefaultWallpaper(imgBackGround);
     }
@@ -63,7 +65,7 @@ public class ArtistListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
                 break;

@@ -22,8 +22,8 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.example.iceman.mp3player.R;
+import com.example.iceman.mp3player.activities.MainActivity;
 import com.example.iceman.mp3player.activities.PlayMusicActivity;
-import com.example.iceman.mp3player.adapter.SongListAdapter;
 import com.example.iceman.mp3player.fragments.FragmentPlay;
 import com.example.iceman.mp3player.models.Song;
 import com.example.iceman.mp3player.receivers.RemoteReceiver;
@@ -32,6 +32,7 @@ import com.example.iceman.mp3player.utils.Constants;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import static android.content.ContentValues.TAG;
 
@@ -41,20 +42,20 @@ import static android.content.ContentValues.TAG;
 
 public class PlayMusicService extends Service {
 
-//    private static PlayMusicService musicServiceInstance;
 
     public static final String ACTION_STOP_SERVICE = "com.example.iceman.mp3player.ACTION_STOP_SERVICE";
-    public static final int NOTIFCATION_ID = 1609;
+    private static final int NOTIFICATION_ID = 1609;
+//    private static final int MAX_STORAGE_STORE = 10;
 
     private static MediaPlayer mediaPlayer;
-    private int currentLength;
     private LocalBinder localBinder = new LocalBinder();
-    private boolean isRepeat;
+    private boolean isRepeat = false;
     private boolean isShowNotification = false;
 
     ArrayList<Song> lstSongPlaying;
-    ArrayList<Song> lstSongShuffle;
-    boolean isShuffle;
+    ArrayList<Integer> histories;
+    Random rand;
+    boolean isShuffle = false;
     int currentSongPos;
     String albumArtPath;
     Song currentSong;
@@ -67,18 +68,15 @@ public class PlayMusicService extends Service {
     MediaSessionCompat mediaSession;
 
     public class LocalBinder extends Binder {
-
         public PlayMusicService getInstantBoundService() {
             return PlayMusicService.this;
         }
 
     }
 
-    public void setDataForNotification(ArrayList<Song> lstSong, ArrayList<Song> lstSongShuffle, boolean isShuffle, int currentPos,
+    public void setDataForNotification(ArrayList<Song> lstSong, int currentPos,
                                        Song itemCurrent, String albumArtPath) {
         this.lstSongPlaying = lstSong;
-        this.lstSongShuffle = lstSongShuffle;
-        this.isShuffle = isShuffle;
         this.currentSongPos = currentPos;
         this.albumArtPath = albumArtPath;
         this.currentSong = itemCurrent;
@@ -92,10 +90,16 @@ public class PlayMusicService extends Service {
         Log.d(TAG, "test called to cancel service");
         if (ACTION_STOP_SERVICE.equals(intent.getAction())) {
             PlayMusicActivity musicActivity = (PlayMusicActivity) AppController.getInstance().getPlayMusicActivity();
+            MainActivity mainActivity = (MainActivity) AppController.getInstance().getMainActivity();
             Log.d(TAG, "called to cancel service");
-            //notificationManager.cancel(NOTIFCATION_ID);
             if (musicActivity != null) {
                 musicActivity.changePlayButtonState();
+            }
+            if(mainActivity != null){
+                mainActivity.updatePlayPauseButton();
+            }
+            if (musicActivity == null && mainActivity == null) {
+                stopSelf();
             }
             pauseMusic();
             stopForeground(true);
@@ -134,8 +138,8 @@ public class PlayMusicService extends Service {
                 AudioManager.STREAM_MUSIC,
                 // Request permanent focus.
                 AudioManager.AUDIOFOCUS_GAIN);
-
-
+        histories = new ArrayList<>();
+        rand = new Random();
     }
 
     public void showLockScreen() {
@@ -150,7 +154,7 @@ public class PlayMusicService extends Service {
         Bitmap bitmap = BitmapFactory.decodeFile(currentSong.getAlbumImagePath());
         mediaSession.setMetadata(new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, currentSong.getArtist())
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, currentSong.getAlbum())
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, currentSong.getAlbum() + " - " + currentSong.getArtist())
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, currentSong.getTitle())
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mediaPlayer.getDuration())
                 .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
@@ -208,16 +212,11 @@ public class PlayMusicService extends Service {
         bigViews = new RemoteViews(getPackageName(), R.layout.notification_view_expanded);
         views = new RemoteViews(getPackageName(), R.layout.notification_view);
         Intent intent = new Intent(getApplicationContext(), PlayMusicActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(SongListAdapter.SONG_POS, currentSongPos);
-        intent.putExtra(SongListAdapter.SONG_PATH, lstSongPlaying.get(currentSongPos).getPath());
-        intent.putExtra(SongListAdapter.LIST_SONG, lstSongPlaying);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//        intent.setAction(Intent.ACTION_MAIN);
+//        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(PlayMusicActivity.IS_PlAYING, true);
-        intent.putExtra(PlayMusicActivity.LIST_SONG_SHUFFLE, lstSongShuffle);
-        intent.putExtra(PlayMusicActivity.IS_SHUFFLE, isShuffle);
 
         if (isPlaying()) {
             views.setImageViewResource(R.id.btn_play_pause_noti, R.drawable.pb_pause);
@@ -248,7 +247,6 @@ public class PlayMusicService extends Service {
 
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
-//        builder.setAutoCancel(false);
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setContentIntent(pendingIntent);
         builder.setContent(views);
@@ -272,7 +270,6 @@ public class PlayMusicService extends Service {
         }
 
         n = builder.build();
-//        notificationManager.notify(1, n);
         bigViews.setOnClickPendingIntent(R.id.btn_close_noti, pendingIntentStopSelf);
         bigViews.setOnClickPendingIntent(R.id.btn_prev_noti, pendingIntentPrev);
         bigViews.setOnClickPendingIntent(R.id.btn_next_noti, pendingIntentNext);
@@ -283,8 +280,7 @@ public class PlayMusicService extends Service {
         views.setOnClickPendingIntent(R.id.btn_play_pause_noti, pendingIntentPlayPause);
 
         if (!isShowNotification) {
-            startForeground(NOTIFCATION_ID, n);
-            Log.d("Playservice", "vaoday");
+            startForeground(NOTIFICATION_ID, n);
         }
         return n;
     }
@@ -296,12 +292,6 @@ public class PlayMusicService extends Service {
         return localBinder;
     }
 
-//    @Override
-//    public boolean onUnbind(Intent intent) {
-//        mediaPlayer.stop();
-//        mediaPlayer.release();
-//        return false;
-//    }
 
     private void releaseMusic() {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
@@ -319,7 +309,6 @@ public class PlayMusicService extends Service {
 
     public void resumeMusic() {
         if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
-            //mediaPlayer.seekTo(getCurrentLength());
             mediaPlayer.start();
             changePlayPauseState();
         }
@@ -327,19 +316,15 @@ public class PlayMusicService extends Service {
 
 
     public void nextMusic() {
-        if (currentSongPos == lstSongPlaying.size()) {
-            currentSongPos = 0;
-        } else {
-            currentSongPos++;
-        }
+        currentSongPos = getNextPosition();
         currentSong = lstSongPlaying.get(currentSongPos);
         String path = currentSong.getPath();
         albumArtPath = currentSong.getAlbumImagePath();
         if (AppController.getInstance().getPlayMusicActivity() != null) {
             setAlbumArt();
         }
+        histories.add(currentSongPos);
         playMusic(path);
-
     }
 
     public void backMusic() {
@@ -372,8 +357,7 @@ public class PlayMusicService extends Service {
         } else {
             bigViews.setImageViewResource(R.id.btn_play_pause_noti, R.drawable.pb_play);
         }
-        startForeground(NOTIFCATION_ID, n);
-        Log.d("check", "tamdung");
+        startForeground(NOTIFICATION_ID, n);
     }
 
     private void setAlbumArt() {
@@ -393,8 +377,16 @@ public class PlayMusicService extends Service {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                Intent intent = new Intent(Constants.ACTION_COMPLETE_SONG);
-                sendBroadcast(intent);
+                if (AppController.getInstance().getPlayMusicActivity() != null) {
+                    Intent intent = new Intent(Constants.ACTION_COMPLETE_SONG);
+                    sendBroadcast(intent);
+                } else {
+                    if (isRepeat()) {
+                        playMusic(currentSong.getPath());
+                    } else {
+                        nextMusic();
+                    }
+                }
             }
         });
         try {
@@ -426,13 +418,48 @@ public class PlayMusicService extends Service {
         mediaPlayer.seekTo(seconds * 1000);
     }
 
-    public void setCurrentLength(int currentLength) {
-        this.currentLength = currentLength;
+    public int getNextPosition() {
+        if (!isShuffle) {
+            if (currentSongPos == lstSongPlaying.size() - 1) return 0;
+        }
+        if (histories.size() > lstSongPlaying.size() - 1)
+            histories.remove(0);
+        if (currentSongPos < 0) return 0;
+//        if (isRepeat()) {
+//            return currentSongPos;
+//        }
+        if (isShuffle) {
+            int newSongPosition = currentSongPos;
 
+            while (newSongPosition == currentSongPos || histories.contains(newSongPosition))
+                newSongPosition = rand.nextInt(lstSongPlaying.size());
+            return newSongPosition;
+        }
+        currentSongPos = currentSongPos + 1;
+        return currentSongPos;
+    }
+
+    public int getPrePosition() {
+        if (isShuffle()) {
+            int newSongPosition = currentSongPos;
+            while (newSongPosition == currentSongPos)
+                newSongPosition = rand.nextInt(lstSongPlaying.size());
+            return newSongPosition;
+        }
+//        int newSongPosition = histories.get(histories.size() - 1);
+//        histories.remove(histories.size() - 1);
+        int newSongPosition;
+        if(currentSongPos == 0){
+            currentSongPos = lstSongPlaying.size() - 1;
+        }else {
+            currentSongPos --;
+        }
+        newSongPosition = currentSongPos;
+        return newSongPosition;
     }
 
     public void setRepeat(boolean repeat) {
-        isRepeat = repeat;
+        this.isRepeat = repeat;
     }
 
     public boolean isRepeat() {
@@ -443,8 +470,8 @@ public class PlayMusicService extends Service {
         return lstSongPlaying;
     }
 
-    public ArrayList<Song> getLstSongShuffle() {
-        return lstSongShuffle;
+    public void setShuffle(boolean shuffle) {
+        this.isShuffle = shuffle;
     }
 
     public boolean isShuffle() {
@@ -461,5 +488,11 @@ public class PlayMusicService extends Service {
 
     public Song getCurrentSong() {
         return currentSong;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        audioManager.abandonAudioFocus(afChangeListener);
     }
 }

@@ -130,7 +130,11 @@ public class FragmentSongList extends Fragment implements SearchView.OnQueryText
         @Override
         protected Object doInBackground(Object[] params) {
             isLoading = true;
-            mListSong = AppController.getInstance().getListSong();
+            if(AppController.getInstance().getLstSong() == null) {
+                mListSong = AppController.getInstance().getListSong();
+            }else{
+                mListSong = AppController.getInstance().getListSong();
+            }
             return null;
         }
 

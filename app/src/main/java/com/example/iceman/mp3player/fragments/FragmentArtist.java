@@ -123,7 +123,11 @@ public class FragmentArtist extends Fragment implements SearchView.OnQueryTextLi
 
         @Override
         protected Object doInBackground(Object[] params) {
-            mLstArtist = AppController.getInstance().getListArtist();
+            if (AppController.getInstance().getLstArtist() == null) {
+                mLstArtist = AppController.getInstance().getListArtist();
+            } else {
+                mLstArtist = AppController.getInstance().getListArtist();
+            }
             return null;
         }
 

@@ -17,10 +17,12 @@ import java.util.ArrayList;
 public class ViewPagerPlayAdapter extends FragmentStatePagerAdapter {
 
     ArrayList<Song> mData;
+    String coverPath;
 
-    public ViewPagerPlayAdapter(FragmentManager fm, ArrayList<Song> mData) {
+    public ViewPagerPlayAdapter(FragmentManager fm, ArrayList<Song> mData, String coverPath) {
         super(fm);
         this.mData = mData;
+        this.coverPath = coverPath;
     }
 
     @Override
@@ -31,11 +33,13 @@ public class ViewPagerPlayAdapter extends FragmentStatePagerAdapter {
                 fragment = FragmentSongListPlaying.newInstance(mData);
                 break;
             case 1:
-                fragment = new FragmentPlay();
+                fragment = FragmentPlay.newInstance(coverPath);
                 break;
         }
         return fragment;
     }
+
+
 
     @Override
     public int getCount() {

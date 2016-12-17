@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,10 +20,10 @@ import android.widget.TextView;
 
 import com.example.iceman.mp3player.R;
 import com.example.iceman.mp3player.adapter.MainAdapter;
-import com.example.iceman.mp3player.adapter.SongListAdapter;
 import com.example.iceman.mp3player.models.ItemListMain;
 import com.example.iceman.mp3player.services.PlayMusicService;
 import com.example.iceman.mp3player.utils.AppController;
+import com.example.iceman.mp3player.utils.Common;
 import com.example.iceman.mp3player.utils.Constants;
 
 import java.util.ArrayList;
@@ -51,9 +50,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         toolbar.setOverflowIcon(ContextCompat.getDrawable(this,R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha));
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
+        AppController.getInstance().setMainActivity(this);
         initControls();
         initEvents();
+        Common.setStatusBarTranslucent(true,this);
         showListMain();
         if (musicService != null) {
             updatePlayingState();
@@ -171,17 +171,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.current_playing_bar:
                 if (musicService != null) {
                     Intent intent = new Intent(MainActivity.this, PlayMusicActivity.class);
-                    intent.putExtra(SongListAdapter.SONG_PATH, musicService.getCurrentSong().getPath());
-                    intent.putExtra(SongListAdapter.SONG_POS, musicService.getCurrentSongPos());
-                    intent.putExtra(SongListAdapter.LIST_SONG, musicService.getLstSongPlaying());
                     intent.putExtra(PlayMusicActivity.IS_PlAYING, true);
-                    intent.putExtra(PlayMusicActivity.LIST_SONG_SHUFFLE, musicService.getLstSongShuffle());
-                    intent.putExtra(PlayMusicActivity.IS_SHUFFLE, musicService.isShuffle());
-
-                    Log.d("SONG_PATH",musicService.getCurrentSong().getPath());
-                    Log.d("SONG_POS",musicService.getCurrentSongPos() + "");
-                    Log.d("LIST_SONG",musicService.getLstSongPlaying() + "");
                     startActivity(intent);
+                    overridePendingTransition(R.anim.slide_in_up,R.anim.no_change);
                 }
                 break;
             case R.id.btn_play_pause_current:
@@ -205,10 +197,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+    public void updatePlayPauseButton(){
+        if (musicService != null) {
+            if (musicService.isPlaying()) {
+                btnPlayPauseCurrent.setImageResource(R.drawable.pb_play);
+            } else {
+                btnPlayPauseCurrent.setImageResource(R.drawable.pb_pause);
+            }
+        }
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        AppController.getInstance().setMainActivity(null);
         unRegisterBroadcastUpdatePlaying();
     }
 }

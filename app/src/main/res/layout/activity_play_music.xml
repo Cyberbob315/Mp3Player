@@ -104,7 +104,8 @@
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackground">
 
                 <ImageView
                     android:id="@+id/btn_shuffle"
@@ -118,6 +119,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:background="?attr/selectableItemBackground"
                 android:gravity="center_horizontal">
 
                 <ImageView
@@ -133,6 +135,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:background="?attr/selectableItemBackground"
                 android:gravity="center_horizontal">
 
                 <ImageView
@@ -148,6 +151,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1.07"
+                android:background="?attr/selectableItemBackground"
                 android:gravity="center_horizontal">
 
                 <ImageView
@@ -161,6 +165,7 @@
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackground"
                 android:layout_weight="1">
 
                 <ImageView

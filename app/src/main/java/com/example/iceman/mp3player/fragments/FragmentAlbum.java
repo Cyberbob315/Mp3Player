@@ -142,7 +142,11 @@ public class FragmentAlbum extends Fragment implements SearchView.OnQueryTextLis
 
         @Override
         protected Object doInBackground(Object[] params) {
-            mLstAlbum = AppController.getInstance().getListAlbum();
+            if(AppController.getInstance().getLstArtist() == null) {
+                mLstAlbum = AppController.getInstance().getListAlbum();
+            }else{
+                mLstAlbum = AppController.getInstance().getListAlbum();
+            }
             return null;
         }
 

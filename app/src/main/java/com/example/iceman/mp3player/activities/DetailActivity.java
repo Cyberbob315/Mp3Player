@@ -15,6 +15,7 @@ import com.example.iceman.mp3player.R;
 import com.example.iceman.mp3player.adapter.MainAdapter;
 import com.example.iceman.mp3player.adapter.ViewPagerDetailAdapter;
 import com.example.iceman.mp3player.utils.AppController;
+import com.example.iceman.mp3player.utils.Common;
 
 public class DetailActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -34,6 +35,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         initControls();
+        Common.setStatusBarTranslucent(true,this);
         initEvents();
         getType();
         AppController.getInstance().setDefaultWallpaper(imgBackGround);

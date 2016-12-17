@@ -26,11 +26,23 @@ public class AppController extends Application {
 
     private Service playMusicService;
     private Activity playMusicActivity;
+    private Activity mainActivity;
+    private ArrayList<Song> lstSong;
+    private ArrayList<Album> lstAlbum;
+    private ArrayList<Artist> lstArtist;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+    }
+
+    public Activity getMainActivity() {
+        return mainActivity;
+    }
+
+    public void setMainActivity(Activity mainActivity) {
+        this.mainActivity = mainActivity;
     }
 
     public Service getPlayMusicService() {
@@ -47,6 +59,18 @@ public class AppController extends Application {
 
     public void setPlayMusicActivity(Activity playMusicActivity) {
         this.playMusicActivity = playMusicActivity;
+    }
+
+    public ArrayList<Song> getLstSong() {
+        return lstSong;
+    }
+
+    public ArrayList<Album> getLstAlbum() {
+        return lstAlbum;
+    }
+
+    public ArrayList<Artist> getLstArtist() {
+        return lstArtist;
     }
 
     public static AppController getInstance() {
@@ -77,6 +101,7 @@ public class AppController extends Application {
 
             } while (cursor.moveToNext());
         }
+        this.lstSong = lstSong;
         return lstSong;
     }
 
@@ -108,6 +133,7 @@ public class AppController extends Application {
                 lstAlbum.add(item);
             } while (cursor.moveToNext());
         }
+        this.lstAlbum = lstAlbum;
         return lstAlbum;
     }
 
@@ -128,6 +154,7 @@ public class AppController extends Application {
             } while (cursor.moveToNext());
         }
 
+        this.lstArtist = lstArtist;
         return lstArtist;
     }
 

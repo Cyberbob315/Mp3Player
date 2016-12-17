@@ -4,6 +4,7 @@
     android:id="@+id/activity_artist_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context="com.example.iceman.mp3player.activities.ArtistListActivity">
     <ImageView
         android:id="@+id/img_back_ground_artist"

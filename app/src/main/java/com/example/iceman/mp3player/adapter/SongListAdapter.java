@@ -1,6 +1,6 @@
 package com.example.iceman.mp3player.adapter;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -24,12 +24,12 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
     public static final String LIST_SONG = "list_song";
     public static final String SONG_POS = "position";
 
-    Context mContext;
+    Activity mContext;
     ArrayList<Song> mData;
     ArrayList<Song> mDataToSend;
     LayoutInflater mLayoutInflater;
 
-    public SongListAdapter(Context mContext, ArrayList<Song> mData) {
+    public SongListAdapter(Activity mContext, ArrayList<Song> mData) {
         this.mContext = mContext;
         this.mData = mData;
         mDataToSend = (ArrayList<Song>) mData.clone();
@@ -89,6 +89,7 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
             intent.putExtra(LIST_SONG, mDataToSend);
             intent.putExtra(PlayMusicActivity.IS_PlAYING, false);
             mContext.startActivity(intent);
+            mContext.overridePendingTransition(R.anim.slide_in_up,R.anim.no_change);
         }
 
     }

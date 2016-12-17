@@ -17,6 +17,7 @@ import com.example.iceman.mp3player.adapter.AlbumListAdapter;
 import com.example.iceman.mp3player.adapter.SongListAdapter;
 import com.example.iceman.mp3player.models.Song;
 import com.example.iceman.mp3player.utils.AppController;
+import com.example.iceman.mp3player.utils.Common;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class AlbumListActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        Common.setStatusBarTranslucent(true,this);
         initControls();
         getAndShowSongList();
         showCover();
